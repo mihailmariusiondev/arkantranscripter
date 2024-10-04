@@ -136,3 +136,7 @@ dmypy.json
 
 # Specific to your project
 config.py
+merged_file.txt
+logs/
+repopack-output.txt
+config/bot_settings.json
