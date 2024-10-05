@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 from telegram.ext import CommandHandler, MessageHandler, filters, ApplicationBuilder
 from .handlers import (
     start_handler,
@@ -14,8 +13,6 @@ from config.bot_config import bot_config
 
 
 async def setup_bot():
-    # Load environment variables from .env file
-    load_dotenv()
 
     # Initialize the Telegram bot application
     application = (
