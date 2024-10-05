@@ -15,15 +15,6 @@ async def start_handler(update: Update, context: CallbackContext) -> None:
     # This function sends a welcome message, instructions, and the current status of bot features.
     # It also logs user information and feature status for debugging purposes.
 
-    # Extract user information for logging
-    user = update.effective_user
-    user_info = (
-        f"ID: {user.id}, "
-        f"Nickname: @{user.username or 'N/A'}, "
-        f"First Name: {user.first_name or 'N/A'}, "
-        f"Last Name: {user.last_name or 'N/A'}"
-    )
-
     # Log the current status of various features
     logging.info(f"AUTO_TRANSCRIPTION_ENABLED: {bot_config.auto_transcription_enabled}")
     logging.info(
