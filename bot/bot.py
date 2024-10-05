@@ -5,7 +5,6 @@ from .handlers import (
     transcribe_handler,
     toggle_autotranscription_handler,
     toggle_enhanced_transcription_handler,
-    toggle_auto_summary_handler,
     message_handler,
     error_handler,
     process_queue,
@@ -38,9 +37,6 @@ async def setup_bot():
         CommandHandler(
             "toggle_enhanced_transcription", toggle_enhanced_transcription_handler
         )
-    )
-    application.add_handler(
-        CommandHandler("toggle_auto_summary", toggle_auto_summary_handler)
     )
 
     # Add message handler for text, video, audio, and voice messages

@@ -23,7 +23,6 @@ class BotConfig:
             settings = json.load(f)
         self.auto_transcription_enabled = settings['auto_transcription_enabled']
         self.enhanced_transcription_enabled = settings['enhanced_transcription_enabled']
-        self.auto_summary_enabled = settings['auto_summary_enabled']
         self.authorized_users = set(settings['authorized_users'])
 
     def _save_settings(self):
@@ -32,7 +31,6 @@ class BotConfig:
         settings = {
             'auto_transcription_enabled': self.auto_transcription_enabled,
             'enhanced_transcription_enabled': self.enhanced_transcription_enabled,
-            'auto_summary_enabled': self.auto_summary_enabled,
             'authorized_users': list(self.authorized_users)
         }
         with open('config/bot_settings.json', 'w') as f:

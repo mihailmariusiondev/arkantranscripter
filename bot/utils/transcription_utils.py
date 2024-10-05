@@ -76,41 +76,6 @@ async def send_transcription_chunks(
     await original_message.reply_text("Transcripción completada.", quote=True)
 
 
-async def generate_summary(transcription):
-    # Generate a summary of the transcription using OpenAI's GPT model.
-    system_prompt = """
-    You are a summarization assistant. Your task is to provide a concise summary of the given transcription in Spanish (Spain). Please follow these instructions to complete the task:
-
-    1. Read and analyze the transcription provided in the user message carefully.
-    2. Identify the main points and key information from the transcription.
-    3. Create a comprehensive summary in Spanish (Spain) that captures the essence of the transcription.
-    4. Structure your summary using bullet points, with each main point starting with "- ".
-    5. Focus on the most important information and avoid including minor details.
-    6. Ensure your summary is concise yet informative.
-    7. Use proper Spanish (Spain) grammar, vocabulary, and expressions.
-
-    Begin your summary immediately without any introductory phrases or additional tags.
-    """
-
-    try:
-        response = OPENAI_CLIENT.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": str(transcription)},  # Convert to string
-            ],
-            temperature=0.5,
-        )
-
-        summary = response.choices[0].message.content
-        logging.info(f"Resumen generado:\n{summary}")
-
-        return summary
-    except Exception as e:
-        logging.error(f"Error al generar el resumen: {str(e)}")
-        return "No se pudo generar un resumen debido a un error."
-
-
 async def process_media(
     message, transcription, original_message, force_transcription=False
 ):
@@ -124,12 +89,6 @@ async def process_media(
         for i in range(0, len(transcription), CHUNK_SIZE)
     ]
     await send_transcription_chunks(message, chunks, original_message)
-
-    if bot_config.auto_summary_enabled:
-        await message.chat.send_message("Generando resumen...")
-        summary = await generate_summary(transcription)
-        await message.chat.send_message("Resumen:")
-        await message.chat.send_message(summary)
 
 
 def get_file_size(file_path):

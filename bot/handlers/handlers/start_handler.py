@@ -20,7 +20,6 @@ async def start_handler(update: Update, context: CallbackContext) -> None:
     logging.info(
         f"ENHANCED_TRANSCRIPTION_ENABLED: {bot_config.enhanced_transcription_enabled}"
     )
-    logging.info(f"AUTO_SUMMARY_ENABLED: {bot_config.auto_summary_enabled}")
 
     # Send welcome message with bot instructions and current feature status
     await update.message.chat.send_message(
@@ -32,7 +31,6 @@ async def start_handler(update: Update, context: CallbackContext) -> None:
         "También puedes citar cualquier mensaje con contenido multimedia y usar /transcribe para transcribirlo.\n\n"
         "Puedes usar los siguientes comandos para controlar las funciones:\n"
         "/toggle_autotranscription - Activar/desactivar la transcripción automática\n"
-        "/toggle_enhanced_transcription - Activar/desactivar la transcripción mejorada\n"
-        "/toggle_auto_summary - Activar/desactivar el resumen automático\n\n"
+        "/toggle_enhanced_transcription - Activar/desactivar la transcripción mejorada\n\n"
         f"{get_current_config_status()}\n"
     )

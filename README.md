@@ -23,15 +23,11 @@ ArkanTranscripter es un bot de Telegram diseñado para transcribir videos de You
 
    - Opción para activar/desactivar la transcripción automática de enlaces y videos.
 
-5. **Resumen automático**
-
-   - Genera resúmenes concisos de las transcripciones utilizando IA.
-
-6. **Manejo de videos largos**
+5. **Manejo de videos largos**
 
    - Divide las transcripciones largas en múltiples mensajes para facilitar la lectura.
 
-7. **Configuración de usuarios autorizados**
+6. **Configuración de usuarios autorizados**
    - Controla quién puede utilizar el bot mediante una lista de usuarios autorizados.
 
 ## 📋 Comandos disponibles
@@ -40,7 +36,6 @@ ArkanTranscripter es un bot de Telegram diseñado para transcribir videos de You
 - `/transcribe [URL de YouTube]`: Transcribe el video de YouTube especificado.
 - `/toggle_autotranscription`: Activa o desactiva la transcripción automática.
 - `/toggle_enhanced_transcription`: Activa o desactiva la transcripción mejorada.
-- `/toggle_auto_summary`: Activa o desactiva la generación automática de resúmenes.
 
 ## 📚 Uso
 
@@ -68,7 +63,7 @@ El bot utiliza las siguientes APIs y servicios:
 
 - **API de Telegram**: Para la interacción con los usuarios.
 - **API de YouTube Transcript**: Para obtener transcripciones de videos de YouTube.
-- **OpenAI API**: Utiliza los modelos Whisper para transcripción y GPT-4o mini para mejora y resumen de transcripciones.
+- **OpenAI API**: Utiliza los modelos Whisper para transcripción y GPT-4o mini para mejora de transcripciones.
 
 ### Variables de Entorno
 
@@ -87,7 +82,6 @@ El archivo `config/bot_settings.json` contiene la configuración de las funciona
 {
   "auto_transcription_enabled": true,
   "enhanced_transcription_enabled": true,
-  "auto_summary_enabled": true,
   "authorized_users": ["123456789", "987654321"]
 }
 ```
@@ -103,7 +97,7 @@ python-telegram-bot
 # YouTube transcript API for fetching video captions
 youtube-transcript-api
 
-# OpenAI API client for GPT and Whisper models
+# OpenAI API client for GPT y Whisper models
 openai==1.50.2
 
 # Environment variable management
@@ -117,7 +111,7 @@ asyncio==3.4.3
 
 - La transcripción automática está habilitada por defecto.
 - El bot puede manejar tanto enlaces de YouTube como videos enviados directamente.
-- Las transcripciones mejoradas y los resúmenes automáticos pueden tardar un poco más debido al procesamiento adicional con GPT-4o mini.
+- Las transcripciones mejoradas pueden tardar un poco más debido al procesamiento adicional con GPT-4o mini.
 - Asegúrate de que los usuarios que interactúan con el bot estén incluidos en la lista de `authorized_users` para garantizar la seguridad y el control de acceso.
 
 ## 🤝 Contribuciones
