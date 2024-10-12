@@ -1,6 +1,6 @@
 {
   "output": {
-    "filePath": "repopack-output.txt",
+    "filePath": "repopack-output.xml",
     "style": "xml",
     "removeComments": false,
     "removeEmptyLines": true,
