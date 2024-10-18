@@ -86,26 +86,68 @@ El archivo `config/bot_settings.json` contiene la configuración de las funciona
 }
 ```
 
-## 📦 Requisitos
+## 📦 Requisitos e Instalación
 
-Ver `requirements.txt` para la lista completa de dependencias.
+### Prerrequisitos
 
-```plaintext
-# Telegram Bot API wrapper
-python-telegram-bot
+- **Anaconda o Miniconda**: Asegúrate de tener Anaconda o Miniconda instalado. Descárgalo de [anaconda.com](https://www.anaconda.com/products/distribution) o [docs.conda.io](https://docs.conda.io/en/latest/miniconda.html).
+- **Git**: Para clonar el repositorio. Descárgalo de [git-scm.com](https://git-scm.com/downloads).
 
-# YouTube transcript API for fetching video captions
-youtube-transcript-api
+### Pasos de Instalación
 
-# OpenAI API client for GPT y Whisper models
-openai==1.50.2
+1. **Clonar el repositorio**:
 
-# Environment variable management
-python-dotenv==1.0.1
+   ```bash
+   git clone https://github.com/tuusuario/arkantranscripter_bot.git
+   cd arkantranscripter_bot
+   ```
 
-# Asyncio for asynchronous processing
-asyncio==3.4.3
-```
+2. **Crear un entorno Conda**:
+
+   ```bash
+   conda create --prefix ./venv python=3.8
+   ```
+
+3. **Activar el entorno Conda**:
+
+   ```bash
+   conda activate ./venv
+   ```
+
+4. **Instalar las dependencias**:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+5. **Configurar las variables de entorno**:
+
+   Crea un archivo `.env` en la raíz del proyecto y añade tus tokens:
+
+   ```env
+   BOT_TOKEN=tu_token_de_telegram
+   OPENAI_API_KEY=tu_api_key_de_openai
+   ```
+
+### Uso
+
+1. **Inicializar la base de datos**:
+
+   Al ejecutar el bot por primera vez, se creará automáticamente una base de datos SQLite para almacenar las configuraciones del chat.
+
+2. **Ejecutar el bot**:
+
+   ```bash
+   python main.py
+   ```
+
+   Verás el mensaje `Starting bot...` en la consola, indicando que el bot está en funcionamiento.
+
+3. **Desactivar el entorno Conda** (cuando hayas terminado):
+
+   ```bash
+   conda deactivate
+   ```
 
 ## 📝 Notas
 
