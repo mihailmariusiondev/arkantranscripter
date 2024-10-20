@@ -1,6 +1,6 @@
 # ArkanTranscripter Bot
 
-![License](https://img.shields.io/github/license/yourusername/arkantranscripter)
+![License](https://img.shields.io/github/license/mihailmariusiondev/arkantranscripter)
 ![Python Version](https://img.shields.io/badge/python-3.12-blue)
 ![Project Status](https://img.shields.io/badge/status-active-brightgreen)
 
@@ -215,11 +215,11 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Credits
 
-- **Developer**: [@yourusername](https://github.com/yourusername)
+- **Developer**: [@mihailmariusiondev](https://github.com/mihailmariusiondev)
 
 ## Contact
 
-For support or inquiries, you can contact me at [@yourusername](https://github.com/yourusername).
+For support or inquiries, you can contact me at [@mihailmariusiondev](https://github.com/mihailmariusiondev).
 
 ## Acknowledgements
 
@@ -227,7 +227,7 @@ For support or inquiries, you can contact me at [@yourusername](https://github.c
 
 ## Support
 
-If you encounter any issues or have suggestions, please open an [issue](https://github.com/yourusername/arkantranscripter/issues) on GitHub.
+If you encounter any issues or have suggestions, please open an [issue](https://github.com/mihailmariusiondev/arkantranscripter/issues) on GitHub.
 
 ## Project Status
 
