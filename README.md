@@ -1,173 +1,242 @@
 # ArkanTranscripter Bot
 
-ArkanTranscripter es un bot de Telegram diseñado para transcribir videos de YouTube y videos enviados directamente al chat. Utiliza la API de YouTube Transcript y la tecnología de OpenAI para proporcionar transcripciones precisas y mejoradas.
+![License](https://img.shields.io/github/license/yourusername/arkantranscripter)
+![Python Version](https://img.shields.io/badge/python-3.12-blue)
+![Project Status](https://img.shields.io/badge/status-active-brightgreen)
 
-## 🛠️ Características principales
+## Description
 
-1. **Transcripción de videos de YouTube**
+**ArkanTranscripter Bot** is a Telegram bot designed to transcribe YouTube videos, directly sent videos, and audio messages. It uses the YouTube Transcript API and OpenAI technology to provide accurate and enhanced transcriptions.
 
-   - Transcribe videos de YouTube a partir de un enlace compartido.
-   - Soporta múltiples idiomas (prioriza inglés si está disponible).
+## Features
 
-2. **Transcripción de videos enviados**
+- **YouTube Video Transcription**: Transcribes YouTube videos from shared links.
+- **Direct Video Transcription**: Transcribes videos sent directly to the Telegram chat.
+- **Audio Message Transcription**: Transcribes audio and voice messages.
+- **Enhanced Transcriptions**: Uses OpenAI's GPT-4o mini to improve transcription quality.
+- **Automatic Transcription**: Option to enable/disable automatic transcription of links and videos.
+- **Long Video Handling**: Splits long transcriptions into multiple messages for easier reading.
+- **Authorized User Configuration**: Controls who can use the bot through an authorized users list.
 
-   - Transcribe videos enviados directamente al chat de Telegram.
-   - Utiliza el modelo Whisper de OpenAI para la transcripción inicial.
+## Available Commands
 
-3. **Mejora de transcripciones con IA**
+- `/start`: Start the bot and display a welcome message.
+- `/transcribe [YouTube URL]`: Transcribe the specified YouTube video.
+- `/toggle_autotranscription`: Enable or disable automatic transcription.
+- `/toggle_enhanced_transcription`: Enable or disable enhanced transcription.
 
-   - Utiliza GPT-4o mini de OpenAI para mejorar la calidad de las transcripciones.
-   - Corrige errores ortográficos, mejora la puntuación y la estructura de las oraciones.
+## Repository Structure
 
-4. **Transcripción automática**
-
-   - Opción para activar/desactivar la transcripción automática de enlaces y videos.
-
-5. **Manejo de videos largos**
-
-   - Divide las transcripciones largas en múltiples mensajes para facilitar la lectura.
-
-6. **Configuración de usuarios autorizados**
-   - Controla quién puede utilizar el bot mediante una lista de usuarios autorizados.
-
-## 📋 Comandos disponibles
-
-- `/start`: Inicia el bot y muestra un mensaje de bienvenida.
-- `/transcribe [URL de YouTube]`: Transcribe el video de YouTube especificado.
-- `/toggle_autotranscription`: Activa o desactiva la transcripción automática.
-- `/toggle_enhanced_transcription`: Activa o desactiva la transcripción mejorada.
-
-## 📚 Uso
-
-1. **Iniciar el bot**
-
-   - Inicia una conversación con el bot en Telegram.
-   - Envía el comando `/start` para recibir un mensaje de bienvenida y las instrucciones básicas.
-
-2. **Transcribir un video de YouTube**
-
-   - Envía el comando `/transcribe` seguido del enlace del video de YouTube.
-   - Ejemplo: `/transcribe https://www.youtube.com/watch?v=ejemplo`
-
-3. **Transcribir un video o audio enviado directamente**
-
-   - Envía un archivo de video, audio o un mensaje de voz directamente al chat con el bot.
-   - El bot procesará y enviará la transcripción correspondiente.
-
-4. **Configurar funcionalidades**
-   - Utiliza los comandos de toggle para activar o desactivar funcionalidades específicas según tus necesidades.
-
-## ⚙️ Configuración
-
-El bot utiliza las siguientes APIs y servicios:
-
-- **API de Telegram**: Para la interacción con los usuarios.
-- **API de YouTube Transcript**: Para obtener transcripciones de videos de YouTube.
-- **OpenAI API**: Utiliza los modelos Whisper para transcripción y GPT-4o mini para mejora de transcripciones.
-
-### Variables de Entorno
-
-Asegúrate de configurar las claves de API correspondientes en el archivo `.env`:
-
-```env
-BOT_TOKEN=tu_token_de_telegram
-OPENAI_API_KEY=tu_api_key_de_openai
+```
+bot/
+├── __init__.py
+├── bot.py
+├── handlers/
+│   ├── __init__.py
+│   ├── handlers/
+│   │   ├── __init__.py
+│   │   ├── error_handler.py
+│   │   ├── message_handler.py
+│   │   ├── start_handler.py
+│   │   ├── toggle_autotranscription_handler.py
+│   │   ├── toggle_enhanced_transcription_handler.py
+│   │   └── transcribe_handler.py
+│   └── media/
+│       ├── __init__.py
+│       ├── audio_handler.py
+│       ├── video_handler.py
+│       └── youtube_handler.py
+└── utils/
+    ├── __init__.py
+    ├── auth_utils.py
+    ├── config_utils.py
+    ├── logging_utils.py
+    └── transcription_utils.py
+config/
+├── __init__.py
+├── bot_config.py
+├── bot_settings.json
+├── constants.py
+└── logging_config.py
+main.py
+environment.yml
 ```
 
-### Archivo de Configuración
+## Installation
 
-El archivo `config/bot_settings.json` contiene la configuración de las funcionalidades y los usuarios autorizados. Asegúrate de actualizar este archivo según tus necesidades.
+### Prerequisites
 
-```json
-{
-  "auto_transcription_enabled": true,
-  "enhanced_transcription_enabled": true,
-  "authorized_users": ["123456789", "987654321"]
-}
-```
+- **Python**: This project uses Python 3.12. Make sure you have Python 3.12 installed or use the provided Conda environment.
+- **Anaconda or Miniconda**: Ensure you have Anaconda or Miniconda installed. Download from [anaconda.com](https://www.anaconda.com/products/distribution) or [docs.conda.io](https://docs.conda.io/en/latest/miniconda.html).
+- **Git**: To clone the repository. Download from [git-scm.com](https://git-scm.com/downloads).
 
-## 📦 Requisitos e Instalación
+### Installation Steps
 
-### Prerrequisitos
-
-- **Anaconda o Miniconda**: Asegúrate de tener Anaconda o Miniconda instalado. Descárgalo de [anaconda.com](https://www.anaconda.com/products/distribution) o [docs.conda.io](https://docs.conda.io/en/latest/miniconda.html).
-- **Git**: Para clonar el repositorio. Descárgalo de [git-scm.com](https://git-scm.com/downloads).
-
-### Pasos de Instalación
-
-1. **Clonar el repositorio**:
+1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/tuusuario/arkantranscripter_bot.git
-   cd arkantranscripter_bot
+   git clone https://github.com/mihailmariusiondev/arkantranscripter.git
+   cd arkantranscripter
    ```
 
-2. **Crear un entorno Conda**:
+2. **Create the Conda environment**:
 
    ```bash
-   conda create --prefix ./venv python=3.8
+   conda env create -f environment.yml
    ```
 
-3. **Activar el entorno Conda**:
+   If the environment already exists, you can update it instead:
 
    ```bash
-   conda activate ./venv
+   conda env update -f environment.yml --prune
    ```
 
-4. **Instalar las dependencias**:
+3. **Activate the Conda environment**:
 
    ```bash
-   pip install -r requirements.txt
+   conda activate arkantranscripter
    ```
 
-5. **Configurar las variables de entorno**:
+   Your prompt should now show `(arkantranscripter)` at the beginning.
 
-   Crea un archivo `.env` en la raíz del proyecto y añade tus tokens:
+4. **Set up environment variables**:
+
+   Create a `.env` file in the root of the project and add your tokens:
 
    ```env
-   BOT_TOKEN=tu_token_de_telegram
-   OPENAI_API_KEY=tu_api_key_de_openai
+   BOT_TOKEN=your_telegram_bot_token_here
+   OPENAI_API_KEY=your_openai_api_key_here
    ```
 
-### Uso
+5. **Verify installation**:
 
-1. **Inicializar la base de datos**:
+   To ensure everything is set up correctly, run:
 
-   Al ejecutar el bot por primera vez, se creará automáticamente una base de datos SQLite para almacenar las configuraciones del chat.
+   ```bash
+   python -c "from bot import run_bot; print('ArkanTranscripter Bot is ready to run!')"
+   ```
 
-2. **Ejecutar el bot**:
+   This should print "ArkanTranscripter Bot is ready to run!" without any errors.
+
+## Usage
+
+1. **Activate the Conda environment** (if not already activated):
+
+   ```bash
+   conda activate arkantranscripter
+   ```
+
+2. **Run the bot**:
 
    ```bash
    python main.py
    ```
 
-   Verás el mensaje `Starting bot...` en la consola, indicando que el bot está en funcionamiento.
+   You will see the message `Starting bot...` in the console, indicating that the bot is up and running.
 
-3. **Desactivar el entorno Conda** (cuando hayas terminado):
+3. **Interacting with the Bot**:
+
+   - **Commands**:
+
+     - `/start`: Start a conversation with the bot.
+     - `/transcribe [YouTube URL]`: Transcribe a YouTube video.
+     - `/toggle_autotranscription`: Enable/disable automatic transcription.
+     - `/toggle_enhanced_transcription`: Enable/disable enhanced transcription.
+
+   - **Transcribing Content**:
+     - Send a YouTube link to transcribe the video.
+     - Send a video file directly to transcribe it.
+     - Send an audio or voice message to transcribe it.
+
+## Deactivating and Deleting the Conda Environment
+
+When you're done working with the bot, you can deactivate the Conda environment. If you need to remove the environment entirely, you can delete it as well.
+
+### Deactivating the Environment
+
+To deactivate the current Conda environment, simply run:
+
+```bash
+conda deactivate
+```
+
+This will return you to your base Conda environment or your regular shell.
+
+### Deleting the Environment
+
+If you want to completely remove the environment, you can delete it using the following command:
+
+```bash
+conda env remove --name arkantranscripter
+```
+
+This will remove the entire `arkantranscripter` environment and all its installed packages.
+
+Note: Make sure you're not inside the environment you're trying to remove. If you are, deactivate it first using the command mentioned above.
+
+### Verifying Environment Removal
+
+To confirm that the environment has been removed, you can list all available environments:
+
+```bash
+conda env list
+```
+
+The `arkantranscripter` environment should no longer appear in this list if it was successfully removed.
+
+## Contribution
+
+Contributions are welcome! If you would like to improve **ArkanTranscripter Bot**, follow these steps:
+
+1. **Fork** the repository.
+2. **Create a branch** for your feature or bug fix:
 
    ```bash
-   conda deactivate
+   git checkout -b feature/new-feature
    ```
 
-## 📝 Notas
+3. **Make your changes** and **commit** them:
 
-- La transcripción automática está habilitada por defecto.
-- El bot puede manejar tanto enlaces de YouTube como videos enviados directamente.
-- Las transcripciones mejoradas pueden tardar un poco más debido al procesamiento adicional con GPT-4o mini.
-- Asegúrate de que los usuarios que interactúan con el bot estén incluidos en la lista de `authorized_users` para garantizar la seguridad y el control de acceso.
+   ```bash
+   git commit -m "Add new feature"
+   ```
 
-## 🤝 Contribuciones
+4. **Push** your branch:
 
-Las contribuciones son bienvenidas. Por favor, abre un issue para discutir cambios mayores antes de enviar un pull request.
+   ```bash
+   git push origin feature/new-feature
+   ```
 
-## 📄 Licencia
+5. **Create a Pull Request** describing your changes.
 
-Este proyecto está bajo la [Licencia MIT](./LICENSE).
+## License
 
-## 🔗 Enlaces Útiles
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-- [Repositorio de Repopack](https://github.com/yamadashy/repopack)
+## Credits
 
----
+- **Developer**: [@yourusername](https://github.com/yourusername)
 
-**¡Gracias por utilizar ArkanTranscripter Bot! Si tienes alguna pregunta o sugerencia, no dudes en contactarnos.**
+## Contact
+
+For support or inquiries, you can contact me at [@yourusername](https://github.com/yourusername).
+
+## Acknowledgements
+
+- Thanks to the Python, Telegram, and OpenAI developer communities for continuous inspiration and support.
+
+## Support
+
+If you encounter any issues or have suggestions, please open an [issue](https://github.com/yourusername/arkantranscripter/issues) on GitHub.
+
+## Project Status
+
+This project is currently in active development. Features and documentation are subject to change as the project evolves.
+
+## Production Use
+
+For production deployment, consider using process management tools like `systemd` or `supervisor` to ensure the bot automatically restarts in case of failure.
+
+## Conclusion
+
+**ArkanTranscripter Bot** is a powerful tool for transcribing various types of media in your Telegram chats. With its advanced features and easy-to-use commands, it's an excellent addition to any Telegram group or channel where transcription services are needed.
