@@ -6,17 +6,20 @@
 
 ## Description
 
-**ArkanTranscripter Bot** is a Telegram bot designed to transcribe YouTube videos, directly sent videos, and audio messages. It uses the YouTube Transcript API and OpenAI technology to provide accurate and enhanced transcriptions.
+**ArkanTranscripter Bot** is a Telegram bot designed to transcribe YouTube videos, directly sent videos, and audio messages. Leveraging the YouTube Transcript API and OpenAI's advanced models, it provides accurate and enhanced transcriptions to improve accessibility and convenience within your Telegram chats.
 
 ## Features
 
 - **YouTube Video Transcription**: Transcribes YouTube videos from shared links.
 - **Direct Video Transcription**: Transcribes videos sent directly to the Telegram chat.
 - **Audio Message Transcription**: Transcribes audio and voice messages.
-- **Enhanced Transcriptions**: Uses OpenAI's GPT-4o mini to improve transcription quality.
-- **Automatic Transcription**: Option to enable/disable automatic transcription of links and videos.
+- **Enhanced Transcriptions**: Utilizes OpenAI's GPT-4o mini to improve transcription quality with minimal corrections.
+- **Automatic Transcription**: Option to enable or disable automatic transcription of links and videos.
 - **Long Video Handling**: Splits long transcriptions into multiple messages for easier reading.
-- **Authorized User Configuration**: Controls who can use the bot through an authorized users list.
+- **Authorized User Configuration**: Controls access to the bot through an authorized users list.
+- **Concurrency Management**: Processes multiple transcription requests concurrently while respecting rate limits.
+- **Caching Mechanism**: Implements caching to reduce redundant processing, enhancing performance.
+- **Comprehensive Logging**: Logs important events and errors for easier debugging and monitoring.
 
 ## Available Commands
 
@@ -60,15 +63,17 @@ config/
 └── logging_config.py
 main.py
 environment.yml
+LICENSE
+README.md
 ```
 
 ## Installation
 
 ### Prerequisites
 
-- **Python**: This project uses Python 3.12. Make sure you have Python 3.12 installed or use the provided Conda environment.
-- **Anaconda or Miniconda**: Ensure you have Anaconda or Miniconda installed. Download from [anaconda.com](https://www.anaconda.com/products/distribution) or [docs.conda.io](https://docs.conda.io/en/latest/miniconda.html).
-- **Git**: To clone the repository. Download from [git-scm.com](https://git-scm.com/downloads).
+- **Python**: This project uses Python 3.12. Ensure Python 3.12 is installed on your system.
+- **Anaconda or Miniconda**: Required for managing the Conda environment. Download from [Anaconda](https://www.anaconda.com/products/distribution) or [Miniconda](https://docs.conda.io/en/latest/miniconda.html).
+- **Git**: Needed to clone the repository. Download from [Git SCM](https://git-scm.com/downloads).
 
 ### Installation Steps
 
@@ -108,6 +113,8 @@ environment.yml
    OPENAI_API_KEY=your_openai_api_key_here
    ```
 
+   Replace `your_telegram_bot_token_here` and `your_openai_api_key_here` with your actual Telegram bot token and OpenAI API key, respectively.
+
 5. **Verify installation**:
 
    To ensure everything is set up correctly, run:
@@ -117,6 +124,8 @@ environment.yml
    ```
 
    This should print "ArkanTranscripter Bot is ready to run!" without any errors.
+
+Now you're ready to run the bot! See the [Usage](#usage) section for next steps.
 
 ## Usage
 
@@ -132,7 +141,7 @@ environment.yml
    python main.py
    ```
 
-   You will see the message `Starting bot...` in the console, indicating that the bot is up and running.
+   You will see log messages indicating that the bot is initializing and running.
 
 3. **Interacting with the Bot**:
 
@@ -140,13 +149,17 @@ environment.yml
 
      - `/start`: Start a conversation with the bot.
      - `/transcribe [YouTube URL]`: Transcribe a YouTube video.
-     - `/toggle_autotranscription`: Enable/disable automatic transcription.
-     - `/toggle_enhanced_transcription`: Enable/disable enhanced transcription.
+     - `/toggle_autotranscription`: Enable or disable automatic transcription.
+     - `/toggle_enhanced_transcription`: Enable or disable enhanced transcription.
 
    - **Transcribing Content**:
-     - Send a YouTube link to transcribe the video.
-     - Send a video file directly to transcribe it.
-     - Send an audio or voice message to transcribe it.
+
+     - **YouTube Links**: Send a YouTube link using `/transcribe [YouTube URL]` to transcribe the video.
+     - **Direct Videos**: Send a video file directly to transcribe it.
+     - **Audio Messages**: Send an audio or voice message to transcribe it.
+
+   - **Configuration**:
+     Use the `/toggle_autotranscription` and `/toggle_enhanced_transcription` commands to enable or disable automatic and enhanced transcription features.
 
 ## Deactivating and Deleting the Conda Environment
 
@@ -172,7 +185,7 @@ conda env remove --name arkantranscripter
 
 This will remove the entire `arkantranscripter` environment and all its installed packages.
 
-Note: Make sure you're not inside the environment you're trying to remove. If you are, deactivate it first using the command mentioned above.
+**Note**: Make sure you're not inside the environment you're trying to remove. If you are, deactivate it first using the command mentioned above.
 
 ### Verifying Environment Removal
 
@@ -209,6 +222,8 @@ Contributions are welcome! If you would like to improve **ArkanTranscripter Bot*
 
 5. **Create a Pull Request** describing your changes.
 
+Please ensure that your contributions adhere to the project's coding standards and include appropriate tests where applicable.
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
@@ -224,6 +239,7 @@ For support or inquiries, you can contact me at [@mihailmariusiondev](https://gi
 ## Acknowledgements
 
 - Thanks to the Python, Telegram, and OpenAI developer communities for continuous inspiration and support.
+- Inspired by the need for streamlined media transcription in Telegram chats.
 
 ## Support
 
@@ -235,8 +251,10 @@ This project is currently in active development. Features and documentation are 
 
 ## Production Use
 
-For production deployment, consider using process management tools like `systemd` or `supervisor` to ensure the bot automatically restarts in case of failure.
+For production deployment, consider using process management tools like `systemd` or `supervisor` to ensure the bot automatically restarts in case of failure. Additionally, hosting the bot on a reliable server or cloud service will help maintain uptime and performance.
 
 ## Conclusion
 
-**ArkanTranscripter Bot** is a powerful tool for transcribing various types of media in your Telegram chats. With its advanced features and easy-to-use commands, it's an excellent addition to any Telegram group or channel where transcription services are needed.
+**ArkanTranscripter Bot** is a powerful tool for transcribing various types of media in your Telegram chats. With its advanced features and easy-to-use commands, it's an excellent addition to any Telegram group or channel where transcription services are needed. By automating the transcription process, it enhances accessibility and convenience, ensuring that important content is easily accessible and well-organized.
+
+Feel free to contribute, suggest features, or report issues to help make **ArkanTranscripter Bot** even better!
