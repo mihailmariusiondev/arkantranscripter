@@ -1,5 +1,8 @@
 {
-  "auto_transcription_enabled": true,
-  "enhanced_transcription_enabled": false,
-  "authorized_users": ["6025856"]
+    "auto_transcription_enabled": true,
+    "enhanced_transcription_enabled": false,
+    "authorized_users": [
+        "6025856"
+    ],
+    "output_text_file_enabled": true
 }

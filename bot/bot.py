@@ -4,6 +4,7 @@ from .handlers import (
     transcribe_handler,
     toggle_autotranscription_handler,
     toggle_enhanced_transcription_handler,
+    toggle_output_text_file_handler,
     message_handler,
     error_handler,
     process_queue,
@@ -35,6 +36,8 @@ async def setup_bot():
             "toggle_enhanced_transcription", toggle_enhanced_transcription_handler
         )
     )
+    # Agregar el manejador para togglear la salida en archivo de texto
+    application.add_handler(CommandHandler("toggle_output_text_file", toggle_output_text_file_handler))
 
     # Add message handler for text, video, audio, and voice messages
     application.add_handler(

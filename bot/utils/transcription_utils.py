@@ -2,6 +2,7 @@ import re
 import logging
 from telegram import Message
 import asyncio
+import tempfile
 from config.constants import CHUNK_SIZE, YOUTUBE_REGEX, PAUSE_BETWEEN_CHUNKS
 from openai import OpenAI
 from config.bot_config import bot_config
@@ -76,6 +77,41 @@ async def send_transcription_chunks(
     await original_message.reply_text("Transcripción completada.", quote=True)
 
 
+async def send_transcription_file(
+    message: Message, transcription: str, original_message: Message
+):
+    """
+    Envía la transcripción como un archivo de texto plano.
+    """
+    try:
+        # Crear un archivo temporal con la transcripción
+        temp_file_path = tempfile.NamedTemporaryFile(delete=False, suffix=".txt").name
+        with open(temp_file_path, "w", encoding="utf-8") as f:
+            f.write(transcription)
+        logging.info(f"Archivo de transcripción creado en: {temp_file_path}")
+
+        # Enviar el archivo al usuario
+        with open(temp_file_path, "rb") as file:
+            await message.chat.send_document(
+                document=file,
+                filename="transcripcion.txt",
+                caption="Aquí tienes la transcripción en un archivo de texto.",
+            )
+        logging.info("Archivo de transcripción enviado correctamente.")
+    except Exception as e:
+        logging.error(f"Error al enviar el archivo de transcripción: {e}")
+        await message.reply_text(
+            "Ocurrió un error al enviar la transcripción como archivo de texto."
+        )
+    finally:
+        # Eliminar el archivo temporal
+        try:
+            os.unlink(temp_file_path)
+            logging.info(f"Archivo temporal eliminado: {temp_file_path}")
+        except Exception as e:
+            logging.error(f"Error al eliminar el archivo temporal: {e}")
+
+
 async def process_media(
     message, transcription, original_message, force_transcription=False
 ):
@@ -83,12 +119,19 @@ async def process_media(
     if bot_config.enhanced_transcription_enabled:
         transcription = await post_process_transcription(transcription)
 
-    await message.chat.send_message("Transcripción completada. Enviando resultados...")
-    chunks = [
-        transcription[i : i + CHUNK_SIZE]
-        for i in range(0, len(transcription), CHUNK_SIZE)
-    ]
-    await send_transcription_chunks(message, chunks, original_message)
+    if bot_config.output_text_file_enabled:
+        # Enviar transcripción como archivo de texto
+        await send_transcription_file(message, transcription, original_message)
+    else:
+        # Enviar transcripción dividida en mensajes
+        await message.chat.send_message(
+            "Transcripción completada. Enviando resultados..."
+        )
+        chunks = [
+            transcription[i : i + CHUNK_SIZE]
+            for i in range(0, len(transcription), CHUNK_SIZE)
+        ]
+        await send_transcription_chunks(message, chunks, original_message)
 
 
 def get_file_size(file_path):

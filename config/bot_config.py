@@ -24,6 +24,7 @@ class BotConfig:
         self.auto_transcription_enabled = settings['auto_transcription_enabled']
         self.enhanced_transcription_enabled = settings['enhanced_transcription_enabled']
         self.authorized_users = set(settings['authorized_users'])
+        self.output_text_file_enabled = settings.get('output_text_file_enabled', False)
 
     def _save_settings(self):
         # Save current settings to the JSON file.
@@ -31,7 +32,8 @@ class BotConfig:
         settings = {
             'auto_transcription_enabled': self.auto_transcription_enabled,
             'enhanced_transcription_enabled': self.enhanced_transcription_enabled,
-            'authorized_users': list(self.authorized_users)
+            'authorized_users': list(self.authorized_users),
+            'output_text_file_enabled': self.output_text_file_enabled
         }
         with open('config/bot_settings.json', 'w') as f:
             json.dump(settings, f, indent=4)
@@ -49,6 +51,11 @@ class BotConfig:
     def toggle_auto_summary(self):
         # Toggle the auto summary feature and save the new state.
         self.auto_summary_enabled = not self.auto_summary_enabled
+        self._save_settings()
+
+    def toggle_output_text_file(self):
+        # Toggle the output to text file feature and save the new state.
+        self.output_text_file_enabled = not self.output_text_file_enabled
         self._save_settings()
 
 # Create a global instance of BotConfig

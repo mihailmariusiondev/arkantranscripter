@@ -15,6 +15,7 @@
 - **Audio Message Transcription**: Transcribes audio and voice messages.
 - **Enhanced Transcriptions**: Utilizes OpenAI's GPT-4o mini to improve transcription quality with minimal corrections.
 - **Automatic Transcription**: Option to enable or disable automatic transcription of links and videos.
+- **Output Transcription as Text File**: Option to receive the transcription as a plain text file.
 - **Long Video Handling**: Splits long transcriptions into multiple messages for easier reading.
 - **Authorized User Configuration**: Controls access to the bot through an authorized users list.
 - **Concurrency Management**: Processes multiple transcription requests concurrently while respecting rate limits.
@@ -27,6 +28,7 @@
 - `/transcribe [YouTube URL]`: Transcribe the specified YouTube video.
 - `/toggle_autotranscription`: Enable or disable automatic transcription.
 - `/toggle_enhanced_transcription`: Enable or disable enhanced transcription.
+- `/toggle_output_text_file`: Enable or disable outputting transcription as a plain text file.
 
 ## Repository Structure
 
