@@ -1,15 +1,15 @@
 from functools import wraps
 from telegram import Update
 from telegram.ext import CallbackContext
-from config.bot_config import bot_config
+from bot.utils.database import db
 
 def check_auth():
     # Decorator function to check if a user is authorized to use the bot
     def decorator(func):
         @wraps(func)
         async def wrapped(update: Update, context: CallbackContext, *args, **kwargs):
-            # Check if the user's ID is in the list of authorized users
-            if str(update.effective_user.id) not in bot_config.authorized_users:
+            # Check if the user's ID is in the database of authorized users
+            if str(update.effective_user.id) not in db.get_authorized_users():
                 # If not authorized, send a message to the user
                 await update.message.reply_text(
                     "Lo siento, no estás autorizado para usar este bot."

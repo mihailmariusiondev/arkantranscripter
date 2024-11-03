@@ -5,6 +5,7 @@ channels:
 dependencies:
   - python=3.12
   - pip
+  - sqlite3
   - pip:
       - python-telegram-bot
       - youtube-transcript-api
