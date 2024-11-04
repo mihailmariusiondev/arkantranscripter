@@ -101,7 +101,10 @@ async def process_media(message, transcription, original_message, content_type="
             summary = await openai_service.summarize_transcription(
                 transcription, content_type=content_type
             )
-            await message.chat.send_message(summary)
+            # Enviar el resumen como markdown
+            await message.chat.send_message(
+                f"```\n{summary}\n```", parse_mode="MarkdownV2"
+            )
 
     except Exception as e:
         logging.error(f"Error processing media: {e}")
