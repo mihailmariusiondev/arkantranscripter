@@ -4,11 +4,12 @@ from telegram.ext import CallbackContext
 from config.constants import YOUTUBE_REGEX
 from .transcribe_handler import transcribe_handler, video_handler, audio_handler
 import asyncio
-from bot.utils.auth_utils import check_auth
 from config.bot_config import bot_config
+from bot.utils.database import db
 
 # Crear una cola global para los mensajes
 message_queue = asyncio.Queue()
+
 
 # Función para procesar los mensajes en la cola
 async def process_queue():
@@ -21,14 +22,19 @@ async def process_queue():
         finally:
             message_queue.task_done()
 
-@check_auth()
+
 async def message_handler(update: Update, context: CallbackContext) -> None:
     # Añadir el mensaje a la cola
     await message_queue.put((update, context))
 
+
 async def process_message(update: Update, context: CallbackContext) -> None:
     # Check if auto-transcription is enabled
     if bot_config.auto_transcription_enabled:
+        # Add auth check here only if trying to use bot features
+        if not str(update.effective_user.id) in db.get_authorized_users():
+            return  # Silently ignore unauthorized users
+
         logging.info("Transcripción automática activada")
         # Check if the message contains text or caption
         if update.message.text or update.message.caption:
