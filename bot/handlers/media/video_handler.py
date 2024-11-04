@@ -3,12 +3,37 @@ import os
 import logging
 from telegram import Message
 from telegram.ext import CallbackContext
-from bot.utils.transcription_utils import transcribe_audio, process_media, compress_audio, extract_audio, get_file_size
+from bot.utils.transcription_utils import (
+    transcribe_audio,
+    process_media,
+    compress_audio,
+    extract_audio,
+    get_file_size,
+)
 from config.constants import MAX_FILE_SIZE
 
+
 async def video_handler(message: Message, context: CallbackContext) -> None:
-    # Check if the video file size exceeds the maximum allowed size
-    if message.video.file_size > MAX_FILE_SIZE:
+    """
+    Handle video message transcription requests.
+
+    Args:
+        message: Telegram message containing video
+        context: Callback context
+    """
+    chat_id = message.chat.id
+    user_id = message.from_user.id
+    file_id = message.video.file_id
+    file_size = message.video.file_size
+
+    logging.info(f"Processing video from user {user_id}, file_id: {file_id}")
+    logging.info(f"Video file size: {file_size} bytes")
+
+    # Check file size limit
+    if file_size > MAX_FILE_SIZE:
+        logging.warning(
+            f"Video size {file_size} exceeds limit of {MAX_FILE_SIZE} bytes"
+        )
         await message.chat.send_message(
             "El archivo es demasiado grande (más de 20 MB). Por favor, envía un archivo más pequeño."
         )
@@ -16,47 +41,60 @@ async def video_handler(message: Message, context: CallbackContext) -> None:
 
     await message.chat.send_message("Procesando el video, por favor espera...")
 
-    # Get the video file from the message
-    file = await context.bot.get_file(message.video.file_id)
-
-    # Create a temporary file to store the video
-    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
-    temp_file_path = temp_file.name
-    temp_file.close()
+    # Create temporary files
+    temp_file_path = None
+    audio_file_path = None
+    compressed_file_path = None
 
     try:
-        # Download the video file to the temporary location
+        # Get video file from Telegram
+        file = await context.bot.get_file(file_id)
+        logging.info(f"Retrieved file info: {file.file_path}")
+
+        # Create temporary files
+        temp_file_path = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4").name
+        audio_file_path = tempfile.NamedTemporaryFile(delete=False, suffix=".wav").name
+        compressed_file_path = tempfile.NamedTemporaryFile(
+            delete=False, suffix=".ogg"
+        ).name
+
+        # Download video
         await file.download_to_drive(custom_path=temp_file_path)
-        logging.info(f"Video downloaded. File size: {get_file_size(temp_file_path)}")
+        logging.info(
+            f"Video downloaded successfully, size: {get_file_size(temp_file_path)}"
+        )
 
         # Extract audio from video
-        audio_file_path = tempfile.NamedTemporaryFile(delete=False, suffix=".wav").name
         await extract_audio(temp_file_path, audio_file_path)
-        logging.info(f"Audio extracted. File size: {get_file_size(audio_file_path)}")
+        logging.info(f"Audio extracted, size: {get_file_size(audio_file_path)}")
 
-        # Compress the extracted audio
-        compressed_file_path = tempfile.NamedTemporaryFile(delete=False, suffix=".ogg").name
+        # Compress extracted audio
         await compress_audio(audio_file_path, compressed_file_path)
-        logging.info(f"Audio compressed. File size: {get_file_size(compressed_file_path)}")
+        logging.info(f"Audio compressed, size: {get_file_size(compressed_file_path)}")
 
-        # Transcribe the compressed audio file
-        logging.info("Starting transcription...")
+        # Transcribe audio
+        logging.info("Starting transcription process")
         transcription = await transcribe_audio(compressed_file_path)
-        logging.info(f"Transcription complete. Length: {len(transcription)} characters")
+        logging.info(f"Transcription completed, length: {len(transcription)} chars")
 
-        # Process the transcription (e.g., enhance, summarize, send chunks)
-        await process_media(message, transcription, message, content_type='video')
+        # Process transcription
+        await process_media(message, transcription, message, content_type="video")
+
     except Exception as e:
-        # Log any errors that occur during processing
-        logging.error(f"Error al transcribir el video: {e}")
+        logging.error(f"Error processing video: {str(e)}", exc_info=True)
         await message.reply_text(
             "Ocurrió un error al procesar la transcripción del video."
         )
+        raise
+
     finally:
-        # Clean up: remove all temporary files
+        # Cleanup temporary files
         for file_path in [temp_file_path, audio_file_path, compressed_file_path]:
-            try:
-                os.unlink(file_path)
-                logging.info(f"Temporary file removed: {file_path}")
-            except Exception as e:
-                logging.error(f"Error al eliminar el archivo temporal: {e}")
+            if file_path:
+                try:
+                    os.unlink(file_path)
+                    logging.info(f"Removed temporary file: {file_path}")
+                except Exception as e:
+                    logging.error(
+                        f"Error removing temporary file {file_path}: {str(e)}"
+                    )

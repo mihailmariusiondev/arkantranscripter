@@ -2,71 +2,115 @@ import sqlite3
 import logging
 from typing import Set
 
+
 class Database:
+    """
+    Database handler for bot settings and user management.
+    Implements SQLite storage for persistent data.
+    """
+
     def __init__(self, db_path: str = "bot_data.db"):
+        """
+        Initialize database connection and create required tables.
+
+        Args:
+            db_path: Path to SQLite database file
+        """
         self.db_path = db_path
+        logging.info(f"Initializing database at {db_path}")
         self._init_db()
 
     def _init_db(self):
-        """Initialize the database with required tables."""
+        """Initialize database tables and default settings."""
         try:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
-                # Create settings table
-                cursor.execute("""
+
+                # Create tables
+                logging.info("Creating database tables if they don't exist")
+                cursor.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS settings (
                         key TEXT PRIMARY KEY,
                         value INTEGER
                     )
-                """)
-
-                # Create authorized users table
-                cursor.execute("""
+                """
+                )
+                cursor.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS authorized_users (
                         user_id TEXT PRIMARY KEY
                     )
-                """)
+                """
+                )
 
-                # Insert default settings if they don't exist
+                # Insert default settings
                 default_settings = [
-                    ('auto_transcription_enabled', 1),
-                    ('enhanced_transcription_enabled', 0),
-                    ('output_text_file_enabled', 0),
-                    ('auto_summarize_enabled', 0)
+                    ("auto_transcription_enabled", 1),
+                    ("enhanced_transcription_enabled", 0),
+                    ("output_text_file_enabled", 0),
+                    ("auto_summarize_enabled", 0),
                 ]
 
-                cursor.executemany("""
+                logging.info("Inserting default settings")
+                cursor.executemany(
+                    """
                     INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)
-                """, default_settings)
+                """,
+                    default_settings,
+                )
 
                 conn.commit()
+                logging.info("Database initialized successfully")
+
         except Exception as e:
-            logging.error(f"Error initializing database: {e}")
+            logging.error(f"Database initialization failed: {str(e)}", exc_info=True)
             raise
 
     def get_setting(self, key: str) -> bool:
-        """Get a boolean setting value from the database."""
+        """
+        Get boolean setting value from database.
+
+        Args:
+            key: Setting key to retrieve
+
+        Returns:
+            bool: Setting value
+        """
         try:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
                 cursor.execute("SELECT value FROM settings WHERE key = ?", (key,))
                 result = cursor.fetchone()
-                return bool(result[0]) if result else False
+                value = bool(result[0]) if result else False
+                logging.info(f"Retrieved setting {key}={value}")
+                return value
         except Exception as e:
-            logging.error(f"Error getting setting {key}: {e}")
+            logging.error(f"Error getting setting {key}: {str(e)}")
             return False
 
     def set_setting(self, key: str, value: bool):
-        """Set a boolean setting value in the database."""
+        """
+        Set boolean setting value in database.
+
+        Args:
+            key: Setting key to update
+            value: New boolean value
+        """
         try:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
-                cursor.execute("""
+                cursor.execute(
+                    """
                     INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)
-                """, (key, int(value)))
+                """,
+                    (key, int(value)),
+                )
                 conn.commit()
+                logging.info(f"Updated setting {key}={value}")
         except Exception as e:
-            logging.error(f"Error setting {key} to {value}: {e}")
+            logging.error(f"Error setting {key}={value}: {str(e)}")
+            raise
 
     def toggle_setting(self, key: str) -> bool:
         """Toggle a boolean setting and return its new value."""
@@ -95,12 +139,16 @@ class Database:
         try:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
-                cursor.execute("""
+                cursor.execute(
+                    """
                     INSERT OR IGNORE INTO authorized_users (user_id) VALUES (?)
-                """, (user_id,))
+                """,
+                    (user_id,),
+                )
                 conn.commit()
         except Exception as e:
             logging.error(f"Error adding authorized user {user_id}: {e}")
 
+
 # Create a global instance of Database
-db = Database() 
+db = Database()

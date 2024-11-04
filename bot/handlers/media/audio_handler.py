@@ -4,7 +4,7 @@ from bot.utils.transcription_utils import (
     transcribe_audio,
     process_media,
     compress_audio,
-    get_file_size
+    get_file_size,
 )
 from config.constants import MAX_FILE_SIZE
 import tempfile
@@ -14,11 +14,29 @@ import logging
 
 
 async def audio_handler(message: Message, context: CallbackContext) -> None:
-    # Determine the file size based on whether it's an audio or voice message
-    file_size = message.audio.file_size if message.audio else message.voice.file_size
+    """
+    Handle audio and voice message transcription requests.
 
-    # Check if the file size exceeds the maximum allowed size
+    Args:
+        message: Telegram message containing audio/voice
+        context: Callback context
+    """
+    chat_id = message.chat.id
+    user_id = message.from_user.id
+
+    # Determine file details based on message type
+    is_audio = bool(message.audio)
+    file_id = message.audio.file_id if is_audio else message.voice.file_id
+    file_size = message.audio.file_size if is_audio else message.voice.file_size
+
+    logging.info(
+        f"Processing {'audio' if is_audio else 'voice'} message from user {user_id}, file_id: {file_id}"
+    )
+    logging.info(f"File size: {file_size} bytes")
+
+    # Check file size limit
     if file_size > MAX_FILE_SIZE:
+        logging.warning(f"File size {file_size} exceeds limit of {MAX_FILE_SIZE} bytes")
         await message.chat.send_message(
             "El archivo es demasiado grande (más de 20 MB). Por favor, envía un archivo más pequeño."
         )
@@ -26,47 +44,59 @@ async def audio_handler(message: Message, context: CallbackContext) -> None:
 
     await message.chat.send_message("Procesando el audio, por favor espera...")
 
-    # Get the file object from the message
-    file = await context.bot.get_file(
-        message.audio.file_id if message.audio else message.voice.file_id
-    )
-
-    # Determine the file extension based on the file path
-    file_extension = mimetypes.guess_extension(file.file_path.split(".")[-1]) or ".ogg"
-
-    # Create a temporary file to store the audio
-    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=file_extension)
-    temp_file_path = temp_file.name
-    temp_file.close()
-
     try:
-        # Download the audio file to the temporary location
-        await file.download_to_drive(custom_path=temp_file_path)
-        logging.info(f"Audio downloaded. File size: {get_file_size(temp_file_path)}")
+        # Get file from Telegram
+        file = await context.bot.get_file(file_id)
+        logging.info(f"Retrieved file info: {file.file_path}")
 
-        # Compress the audio
-        compressed_file_path = tempfile.NamedTemporaryFile(delete=False, suffix=".ogg").name
-        await compress_audio(temp_file_path, compressed_file_path)
-        logging.info(f"Audio compressed. File size: {get_file_size(compressed_file_path)}")
+        # Create temporary file
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".ogg")
+        temp_file_path = temp_file.name
+        temp_file.close()
+        logging.info(f"Created temporary file: {temp_file_path}")
 
-        # Transcribe the compressed audio file
-        logging.info("Starting transcription...")
-        transcription = await transcribe_audio(compressed_file_path)
-        logging.info(f"Transcription complete. Length: {len(transcription)} characters")
+        try:
+            # Download audio file
+            await file.download_to_drive(custom_path=temp_file_path)
+            logging.info(
+                f"Audio downloaded successfully, size: {get_file_size(temp_file_path)}"
+            )
 
-        # Process the transcription (e.g., enhance, summarize, send chunks)
-        await process_media(message, transcription, message, content_type='audio')
+            # Compress audio
+            compressed_file_path = tempfile.NamedTemporaryFile(
+                delete=False, suffix=".ogg"
+            ).name
+            await compress_audio(temp_file_path, compressed_file_path)
+            logging.info(
+                f"Audio compressed, new size: {get_file_size(compressed_file_path)}"
+            )
+
+            # Transcribe audio
+            logging.info("Starting transcription process")
+            transcription = await transcribe_audio(compressed_file_path)
+            logging.info(f"Transcription completed, length: {len(transcription)} chars")
+
+            # Process transcription
+            await process_media(message, transcription, message, content_type="audio")
+
+        except Exception as e:
+            logging.error(f"Error processing audio file: {str(e)}", exc_info=True)
+            await message.reply_text(
+                "Ocurrió un error al procesar la transcripción del audio."
+            )
+            raise
+
+        finally:
+            # Cleanup temporary files
+            for file_path in [temp_file_path, compressed_file_path]:
+                try:
+                    os.unlink(file_path)
+                    logging.info(f"Removed temporary file: {file_path}")
+                except Exception as e:
+                    logging.error(
+                        f"Error removing temporary file {file_path}: {str(e)}"
+                    )
+
     except Exception as e:
-        # Log any errors that occur during processing
-        logging.error(f"Error al transcribir el audio: {e}")
-        await message.reply_text(
-            "Ocurrió un error al procesar la transcripción del audio."
-        )
-    finally:
-        # Clean up: remove both temporary files
-        for file_path in [temp_file_path, compressed_file_path]:
-            try:
-                os.unlink(file_path)
-                logging.info(f"Temporary file removed: {file_path}")
-            except Exception as e:
-                logging.error(f"Error al eliminar el archivo temporal: {e}")
+        logging.error(f"Error in audio handler: {str(e)}", exc_info=True)
+        raise

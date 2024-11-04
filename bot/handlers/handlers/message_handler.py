@@ -29,44 +29,55 @@ async def message_handler(update: Update, context: CallbackContext) -> None:
 
 
 async def process_message(update: Update, context: CallbackContext) -> None:
+    user_id = update.effective_user.id
+    chat_id = update.effective_chat.id
+    logging.info(f"Processing message from user {user_id} in chat {chat_id}")
+
     # Check if auto-transcription is enabled
     if bot_config.auto_transcription_enabled:
-        # Add auth check here only if trying to use bot features
-        if not str(update.effective_user.id) in db.get_authorized_users():
-            return  # Silently ignore unauthorized users
+        logging.info("Auto-transcription is enabled")
 
-        logging.info("Transcripción automática activada")
-        # Check if the message contains text or caption
+        # Auth check for bot features
+        if not str(user_id) in db.get_authorized_users():
+            logging.warning(f"Unauthorized access attempt from user {user_id}")
+            return
+
+        # Check message content type and handle accordingly
         if update.message.text or update.message.caption:
             text_to_check = update.message.text or update.message.caption
-            logging.info(f"Mensaje recibido: {text_to_check}")
+            logging.info(
+                f"Processing text/caption message: {text_to_check[:100]}..."
+            )  # Log first 100 chars
 
-            # Check if the message contains a YouTube link
+            # YouTube link detection
             video_id_match = YOUTUBE_REGEX.search(text_to_check)
             if video_id_match:
-                logging.info(f"Enlace de YouTube detectado: {video_id_match.group()}")
-                context.args = [video_id_match.group()]
+                video_url = video_id_match.group()
+                logging.info(f"YouTube URL detected: {video_url}")
+                context.args = [video_url]
                 await transcribe_handler(update, context)
             else:
-                logging.info("No se detectó enlace de YouTube")
+                logging.info("No YouTube URL found in message")
 
-        # Handle video messages
         elif update.message.video:
-            logging.info("Video recibido")
+            logging.info(
+                f"Processing video message, file_id: {update.message.video.file_id}"
+            )
             await video_handler(update.message, context)
 
-        # Handle audio messages
         elif update.message.audio:
-            logging.info("Audio recibido")
+            logging.info(
+                f"Processing audio message, file_id: {update.message.audio.file_id}"
+            )
             await audio_handler(update.message, context)
 
-        # Handle voice messages
         elif update.message.voice:
-            logging.info("Mensaje de voz recibido")
+            logging.info(
+                f"Processing voice message, file_id: {update.message.voice.file_id}"
+            )
             await audio_handler(update.message, context)
 
-        # Log unrecognized message types
         else:
-            logging.info("Mensaje no reconocido")
+            logging.info(f"Unrecognized message type from user {user_id}")
     else:
-        logging.info("Transcripción automática desactivada")
+        logging.info("Auto-transcription is disabled, skipping message processing")

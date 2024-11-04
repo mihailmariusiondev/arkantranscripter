@@ -79,35 +79,63 @@ async def send_transcription_file(
 
 
 async def process_media(message, transcription, original_message, content_type="video"):
+    """
+    Process media content by handling transcription, chunking, and optional summarization.
+
+    Args:
+        message: The Telegram message object
+        transcription: The raw transcription text
+        original_message: The original message being processed
+        content_type: Type of media being processed (video/audio/youtube)
+    """
+    chat_id = message.chat.id
+    user_id = message.from_user.id
+
     try:
+        logging.info(
+            f"Processing {content_type} media for user {user_id} in chat {chat_id}"
+        )
+
+        # Enhanced transcription processing if enabled
         if bot_config.enhanced_transcription_enabled:
+            logging.info("Enhanced transcription enabled, post-processing text")
             transcription = await openai_service.post_process_transcription(
                 transcription
             )
+            logging.info("Enhanced transcription completed")
 
+        # Handle text file output if enabled
         if bot_config.output_text_file_enabled:
+            logging.info("Text file output enabled, preparing file")
             await send_transcription_file(message, transcription, original_message)
         else:
+            logging.info("Sending transcription as messages")
             await message.chat.send_message(
                 "Transcripción completada. Enviando resultados..."
             )
+
+            # Split transcription into chunks
             chunks = [
                 transcription[i : i + CHUNK_SIZE]
                 for i in range(0, len(transcription), CHUNK_SIZE)
             ]
+            logging.info(f"Split transcription into {len(chunks)} chunks")
+
             await send_transcription_chunks(message, chunks, original_message)
 
+        # Handle auto-summarization if enabled
         if bot_config.auto_summarize_enabled:
+            logging.info("Generating summary for transcription")
             summary = await openai_service.summarize_transcription(
                 transcription, content_type=content_type
             )
-            # Enviar el resumen como markdown
+            logging.info("Summary generated successfully")
             await message.chat.send_message(
                 f"```\n{summary}\n```", parse_mode="MarkdownV2"
             )
 
     except Exception as e:
-        logging.error(f"Error processing media: {e}")
+        logging.error(f"Error processing media: {str(e)}", exc_info=True)
         raise
 
 
