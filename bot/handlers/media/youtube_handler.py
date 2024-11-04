@@ -46,7 +46,7 @@ async def youtube_handler(
         transcription = " ".join([entry["text"] for entry in transcript_data])
 
         # Process the transcription (e.g., enhance, summarize, send chunks)
-        await process_media(update.message, transcription, original_message)
+        await process_media(update.message, transcription, original_message, content_type='youtube')
 
     except NoTranscriptFound:
         # Handle case where no transcript is available

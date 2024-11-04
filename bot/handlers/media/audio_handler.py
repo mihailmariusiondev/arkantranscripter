@@ -55,7 +55,7 @@ async def audio_handler(message: Message, context: CallbackContext) -> None:
         logging.info(f"Transcription complete. Length: {len(transcription)} characters")
 
         # Process the transcription (e.g., enhance, summarize, send chunks)
-        await process_media(message, transcription, message)
+        await process_media(message, transcription, message, content_type='audio')
     except Exception as e:
         # Log any errors that occur during processing
         logging.error(f"Error al transcribir el audio: {e}")
