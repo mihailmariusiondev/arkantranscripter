@@ -31,7 +31,8 @@ class Database:
                 default_settings = [
                     ('auto_transcription_enabled', 1),
                     ('enhanced_transcription_enabled', 0),
-                    ('output_text_file_enabled', 0)
+                    ('output_text_file_enabled', 0),
+                    ('auto_summarize_enabled', 0)
                 ]
 
                 cursor.executemany("""

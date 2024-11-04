@@ -77,26 +77,28 @@ async def send_transcription_file(
             logging.error(f"Error al eliminar el archivo temporal: {e}")
 
 
-async def process_media(
-    message, transcription, original_message, force_transcription=False
-):
-    # Process the transcription: enhance if enabled, chunk and send, summarize if enabled.
-    if bot_config.enhanced_transcription_enabled:
-        transcription = await post_process_transcription(transcription)
+async def process_media(message, transcription, original_message):
+    try:
+        if bot_config.enhanced_transcription_enabled:
+            transcription = await openai_service.post_process_transcription(transcription)
 
-    if bot_config.output_text_file_enabled:
-        # Enviar transcripción como archivo de texto
-        await send_transcription_file(message, transcription, original_message)
-    else:
-        # Enviar transcripción dividida en mensajes
-        await message.chat.send_message(
-            "Transcripción completada. Enviando resultados..."
-        )
-        chunks = [
-            transcription[i : i + CHUNK_SIZE]
-            for i in range(0, len(transcription), CHUNK_SIZE)
-        ]
-        await send_transcription_chunks(message, chunks, original_message)
+        # Handle text file output if enabled
+        if bot_config.output_text_file_enabled:
+            await send_transcription_file(message, transcription, original_message)
+        else:
+            # Send transcription in chunks
+            await message.chat.send_message("Transcripción completada. Enviando resultados...")
+            chunks = [transcription[i:i + CHUNK_SIZE] for i in range(0, len(transcription), CHUNK_SIZE)]
+            await send_transcription_chunks(message, chunks, original_message)
+
+        # Generate and send summary if enabled
+        if bot_config.auto_summarize_enabled:
+            summary = await openai_service.summarize_transcription(transcription)
+            await message.chat.send_message(summary)
+
+    except Exception as e:
+        logging.error(f"Error processing media: {e}")
+        raise
 
 
 def get_file_size(file_path):

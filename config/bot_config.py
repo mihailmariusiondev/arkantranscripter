@@ -26,6 +26,10 @@ class BotConfig:
     def authorized_users(self) -> set:
         return db.get_authorized_users()
 
+    @property
+    def auto_summarize_enabled(self) -> bool:
+        return db.get_setting('auto_summarize_enabled')
+
     def toggle_auto_transcription(self):
         return db.toggle_setting('auto_transcription_enabled')
 
@@ -34,6 +38,9 @@ class BotConfig:
 
     def toggle_output_text_file(self):
         return db.toggle_setting('output_text_file_enabled')
+
+    def toggle_auto_summarize(self):
+        return db.toggle_setting('auto_summarize_enabled')
 
 # Create a global instance of BotConfig
 bot_config = BotConfig()

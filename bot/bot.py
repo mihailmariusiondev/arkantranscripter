@@ -8,6 +8,7 @@ from .handlers import (
     message_handler,
     error_handler,
     process_queue,
+    toggle_auto_summarize_handler,
 )
 import asyncio
 from config.bot_config import bot_config
@@ -38,6 +39,9 @@ async def setup_bot():
     )
     # Agregar el manejador para togglear la salida en archivo de texto
     application.add_handler(CommandHandler("toggle_output_text_file", toggle_output_text_file_handler))
+    application.add_handler(
+        CommandHandler("toggle_auto_summarize", toggle_auto_summarize_handler)
+    )
 
     # Add message handler for text, video, audio, and voice messages
     application.add_handler(
