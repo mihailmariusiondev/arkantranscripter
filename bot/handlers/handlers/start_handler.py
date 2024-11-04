@@ -1,17 +1,12 @@
 from telegram import Update
 from telegram.ext import CallbackContext
 import logging
-from bot.utils.auth_utils import check_auth
 from config.bot_config import bot_config
-from bot.utils.logging_utils import log_command
 from bot.utils.config_utils import get_current_config_status
 
-
-@check_auth()
 async def start_handler(update: Update, context: CallbackContext) -> None:
     """
     Handle the /start command by sending welcome message and current bot status.
-    Requires user authentication.
     """
     user_id = update.effective_user.id
     chat_id = update.effective_chat.id

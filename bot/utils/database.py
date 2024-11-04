@@ -36,13 +36,6 @@ class Database:
                     )
                 """
                 )
-                cursor.execute(
-                    """
-                    CREATE TABLE IF NOT EXISTS authorized_users (
-                        user_id TEXT PRIMARY KEY
-                    )
-                """
-                )
 
                 # Insert default settings
                 default_settings = [

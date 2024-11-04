@@ -7,11 +7,8 @@ from bot.handlers.media import (
     audio_handler,
 )
 from config.constants import YOUTUBE_REGEX
-from bot.utils.auth_utils import check_auth
-from bot.utils.logging_utils import log_command
 
 
-@check_auth()
 async def transcribe_handler(update: Update, context: CallbackContext) -> None:
     """
     Main handler for transcription requests. Supports YouTube URLs, videos, and audio messages.

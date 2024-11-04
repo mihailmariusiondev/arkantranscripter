@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from bot.utils.database import db
 
+
 class BotConfig:
     def __init__(self):
         # Load environment variables from .env file
@@ -12,35 +13,32 @@ class BotConfig:
 
     @property
     def auto_transcription_enabled(self) -> bool:
-        return db.get_setting('auto_transcription_enabled')
+        return db.get_setting("auto_transcription_enabled")
 
     @property
     def enhanced_transcription_enabled(self) -> bool:
-        return db.get_setting('enhanced_transcription_enabled')
+        return db.get_setting("enhanced_transcription_enabled")
 
     @property
     def output_text_file_enabled(self) -> bool:
-        return db.get_setting('output_text_file_enabled')
-
-    @property
-    def authorized_users(self) -> set:
-        return db.get_authorized_users()
+        return db.get_setting("output_text_file_enabled")
 
     @property
     def auto_summarize_enabled(self) -> bool:
-        return db.get_setting('auto_summarize_enabled')
+        return db.get_setting("auto_summarize_enabled")
 
     def toggle_auto_transcription(self):
-        return db.toggle_setting('auto_transcription_enabled')
+        return db.toggle_setting("auto_transcription_enabled")
 
     def toggle_enhanced_transcription(self):
-        return db.toggle_setting('enhanced_transcription_enabled')
+        return db.toggle_setting("enhanced_transcription_enabled")
 
     def toggle_output_text_file(self):
-        return db.toggle_setting('output_text_file_enabled')
+        return db.toggle_setting("output_text_file_enabled")
 
     def toggle_auto_summarize(self):
-        return db.toggle_setting('auto_summarize_enabled')
+        return db.toggle_setting("auto_summarize_enabled")
+
 
 # Create a global instance of BotConfig
 bot_config = BotConfig()
