@@ -7,65 +7,6 @@ import os
 class OpenAIService:
     def __init__(self):
         self.client = OpenAI(api_key=bot_config.openai_api_key)
-        self.SUMMARY_PROMPTS = {
-            "youtube": """You are a YouTube content summarizer specialized in long-form video content. Create a comprehensive summary that captures the essence of the video. Follow these rules:
-
-            1. Length: Aim for 30-40% of original length for detailed coverage
-            2. Structure:
-               - Lead with the main topic/thesis
-               - Maintain the video's logical flow
-               - Include key timestamps or sections if mentioned
-            3. Content:
-               - Preserve important statistics and data
-               - Include relevant quotes or key statements
-               - Maintain the original tone (educational, news, etc.)
-               - Highlight main arguments or conclusions
-            4. Format:
-               "📝 RESUMEN DE VIDEO DE YOUTUBE:
-
-               📍 TEMA PRINCIPAL:
-               [main topic/thesis]
-
-               📊 PUNTOS CLAVE:
-               [key points and data]
-
-               📝 DESARROLLO:
-               [detailed content]
-
-               🔍 CONCLUSIONES:
-               [main takeaways/conclusions]"
-            """,
-            "video": """You are a direct video content summarizer. Create a summary that captures both visual and spoken content. Follow these rules:
-
-            1. Length: Aim for 50-60% of original length
-            2. Focus:
-               - Capture main message and context
-               - Include relevant visual elements mentioned
-               - Preserve important details and instructions
-            3. Content:
-               - Maintain chronological order
-               - Include key demonstrations or actions
-               - Preserve specific instructions if present
-            4. Format:
-               "📝 RESUMEN DE VIDEO:
-               [comprehensive summary including context and key points]"
-            """,
-            "audio": """You are an audio content summarizer. Create a clear summary of spoken content. Follow these rules:
-
-            1. Length: Aim for 50-60% of original length
-            2. Focus:
-               - Capture main message and intent
-               - Preserve important context
-               - Include key details and specifics
-            3. Content:
-               - Maintain speaker's main points
-               - Include time-sensitive information
-               - Preserve important quotes or statements
-            4. Format:
-               "📝 RESUMEN DE AUDIO:
-               [clear summary of the audio content]"
-            """,
-        }
 
     async def transcribe_audio(self, file_path: str) -> str:
         """
@@ -141,36 +82,6 @@ class OpenAIService:
             logging.error(
                 f"Error in transcription post-processing: {str(e)}", exc_info=True
             )
-            raise
-
-    async def summarize_transcription(
-        self, transcription: str, content_type: str
-    ) -> str:
-        """Create a summary based on handler type."""
-        try:
-            if content_type not in self.SUMMARY_PROMPTS:
-                logging.warning(
-                    f"Unknown content type: {content_type}, defaulting to 'video'"
-                )
-                content_type = "video"
-
-            system_prompt = self.SUMMARY_PROMPTS[content_type]
-
-            response = self.client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": transcription},
-                ],
-                temperature=0.3,
-            )
-            summary = response.choices[0].message.content
-            logging.info(
-                f"Summary generated for {content_type}, length: {len(summary)} chars"
-            )
-            return summary
-        except Exception as e:
-            logging.error(f"Error generating summary: {e}")
             raise
 
 

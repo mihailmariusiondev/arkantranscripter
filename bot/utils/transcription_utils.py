@@ -123,17 +123,6 @@ async def process_media(message, transcription, original_message, content_type="
 
             await send_transcription_chunks(message, chunks, original_message)
 
-        # Handle auto-summarization if enabled
-        if bot_config.auto_summarize_enabled:
-            logging.info("Generating summary for transcription")
-            summary = await openai_service.summarize_transcription(
-                transcription, content_type=content_type
-            )
-            logging.info("Summary generated successfully")
-            await message.chat.send_message(
-                f"```\n{summary}\n```", parse_mode="MarkdownV2"
-            )
-
     except Exception as e:
         logging.error(f"Error processing media: {str(e)}", exc_info=True)
         raise

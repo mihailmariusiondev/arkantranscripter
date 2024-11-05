@@ -4,6 +4,7 @@ import logging
 from config.bot_config import bot_config
 from bot.utils.config_utils import get_current_config_status
 
+
 async def start_handler(update: Update, context: CallbackContext) -> None:
     """
     Handle the /start command by sending welcome message and current bot status.
@@ -16,8 +17,7 @@ async def start_handler(update: Update, context: CallbackContext) -> None:
     logging.info(
         "Current bot configuration: "
         + f"auto_transcription={bot_config.auto_transcription_enabled}, "
-        + f"enhanced_transcription={bot_config.enhanced_transcription_enabled}, "
-        + f"auto_summarize={bot_config.auto_summarize_enabled}"
+        + f"enhanced_transcription={bot_config.enhanced_transcription_enabled}"
     )
 
     # Get current status and send welcome message
@@ -33,7 +33,6 @@ async def start_handler(update: Update, context: CallbackContext) -> None:
         "/toggle_autotranscription - Activar/desactivar la transcripción automática\n"
         "/toggle_enhanced_transcription - Activar/desactivar la transcripción mejorada\n"
         "/toggle_output_text_file - Activar/desactivar salida en archivo de texto\n"
-        "/toggle_auto_summarize - Activar/desactivar resumen automático\n\n"
         f"{get_current_config_status()}\n"
     )
 
