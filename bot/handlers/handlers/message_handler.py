@@ -36,19 +36,33 @@ async def process_message(update: Update, context: CallbackContext) -> None:
     # Check if auto-transcription is enabled
     if bot_config.auto_transcription_enabled:
         logging.info("Auto-transcription is enabled")
-
         # Auth check for bot features
         if not str(user_id) in db.get_authorized_users():
             logging.warning(f"Unauthorized access attempt from user {user_id}")
             return
 
-        # Check message content type and handle accordingly
-        if update.message.text or update.message.caption:
+        # Modificar el orden de verificación para priorizar contenido multimedia
+        if update.message.video:
+            logging.info(
+                f"Processing video message, file_id: {update.message.video.file_id}"
+            )
+            await video_handler(update.message, context)
+        elif update.message.audio:
+            logging.info(
+                f"Processing audio message, file_id: {update.message.audio.file_id}"
+            )
+            await audio_handler(update.message, context)
+        elif update.message.voice:
+            logging.info(
+                f"Processing voice message, file_id: {update.message.voice.file_id}"
+            )
+            await audio_handler(update.message, context)
+        # Solo procesar texto si no hay contenido multimedia
+        elif update.message.text or update.message.caption:
             text_to_check = update.message.text or update.message.caption
             logging.info(
                 f"Processing text/caption message: {text_to_check[:100]}..."
-            )  # Log first 100 chars
-
+            )
             # YouTube link detection
             video_id_match = YOUTUBE_REGEX.search(text_to_check)
             if video_id_match:
@@ -58,25 +72,6 @@ async def process_message(update: Update, context: CallbackContext) -> None:
                 await transcribe_handler(update, context)
             else:
                 logging.info("No YouTube URL found in message")
-
-        elif update.message.video:
-            logging.info(
-                f"Processing video message, file_id: {update.message.video.file_id}"
-            )
-            await video_handler(update.message, context)
-
-        elif update.message.audio:
-            logging.info(
-                f"Processing audio message, file_id: {update.message.audio.file_id}"
-            )
-            await audio_handler(update.message, context)
-
-        elif update.message.voice:
-            logging.info(
-                f"Processing voice message, file_id: {update.message.voice.file_id}"
-            )
-            await audio_handler(update.message, context)
-
         else:
             logging.info(f"Unrecognized message type from user {user_id}")
     else:
