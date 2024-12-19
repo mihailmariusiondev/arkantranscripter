@@ -5,8 +5,8 @@ from bot.utils.database import db
 
 class BotConfig:
     def __init__(self):
-        # Load environment variables from .env file
-        load_dotenv()
+        # Load environment variables from .env file, overriding existing variables
+        load_dotenv(override=True)
         # Get API keys from environment variables
         self.bot_token = os.getenv("BOT_TOKEN")
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
