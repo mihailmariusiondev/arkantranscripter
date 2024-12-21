@@ -36,6 +36,14 @@ class Database:
                     )
                 """
                 )
+                cursor.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS users (
+                        user_id TEXT PRIMARY KEY,
+                        authorized INTEGER DEFAULT 0
+                    )
+                """
+                )
 
                 # Insert default settings
                 default_settings = [
@@ -121,7 +129,7 @@ class Database:
         try:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
-                cursor.execute("SELECT user_id FROM authorized_users")
+                cursor.execute("SELECT user_id FROM users WHERE authorized = 1")
                 return {row[0] for row in cursor.fetchall()}
         except Exception as e:
             logging.error(f"Error getting authorized users: {e}")
@@ -134,13 +142,53 @@ class Database:
                 cursor = conn.cursor()
                 cursor.execute(
                     """
-                    INSERT OR IGNORE INTO authorized_users (user_id) VALUES (?)
+                    INSERT OR IGNORE INTO users (user_id, authorized) VALUES (?, 1)
                 """,
                     (user_id,),
                 )
                 conn.commit()
         except Exception as e:
             logging.error(f"Error adding authorized user {user_id}: {e}")
+
+    def add_user(self, user_id: str):
+        """Add a user ID to the users list."""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    INSERT OR IGNORE INTO users (user_id) VALUES (?)
+                """,
+                    (user_id,),
+                )
+                conn.commit()
+        except Exception as e:
+            logging.error(f"Error adding user {user_id}: {e}")
+
+    def is_user_registered(self, user_id: str) -> bool:
+        """Check if a user is registered."""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT 1 FROM users WHERE user_id = ?", (user_id,))
+                return cursor.fetchone() is not None
+        except Exception as e:
+            logging.error(f"Error checking if user {user_id} is registered: {e}")
+            return False
+
+    def is_user_authorized(self, user_id: str) -> bool:
+        """Check if a user is authorized."""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "SELECT authorized FROM users WHERE user_id = ?", (user_id,)
+                )
+                result = cursor.fetchone()
+                return result[0] == 1 if result else False
+        except Exception as e:
+            logging.error(f"Error checking if user {user_id} is authorized: {e}")
+            return False
 
 
 # Create a global instance of Database

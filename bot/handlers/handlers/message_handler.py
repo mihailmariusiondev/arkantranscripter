@@ -10,7 +10,6 @@ from bot.utils.database import db
 # Crear una cola global para los mensajes
 message_queue = asyncio.Queue()
 
-
 # Función para procesar los mensajes en la cola
 async def process_queue():
     while True:
@@ -22,24 +21,29 @@ async def process_queue():
         finally:
             message_queue.task_done()
 
-
 async def message_handler(update: Update, context: CallbackContext) -> None:
     # Añadir el mensaje a la cola
     await message_queue.put((update, context))
-
 
 async def process_message(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
     chat_id = update.effective_chat.id
     logging.info(f"Processing message from user {user_id} in chat {chat_id}")
 
+    # Save user ID on first interaction
+    if not db.is_user_registered(user_id):
+        db.add_user(user_id)
+        logging.info(f"New user registered: {user_id}")
+
+    # Check if user is authorized
+    if not db.is_user_authorized(user_id):
+        logging.warning(f"Unauthorized access attempt from user {user_id}")
+        await update.message.reply_text("No estás autorizado para usar este bot.")
+        return
+
     # Check if auto-transcription is enabled
     if bot_config.auto_transcription_enabled:
         logging.info("Auto-transcription is enabled")
-        # Auth check for bot features
-        if not str(user_id) in db.get_authorized_users():
-            logging.warning(f"Unauthorized access attempt from user {user_id}")
-            return
 
         # Modificar el orden de verificación para priorizar contenido multimedia
         if update.message.video:

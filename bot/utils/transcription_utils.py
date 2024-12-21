@@ -30,17 +30,10 @@ async def post_process_transcription(transcription):
 async def send_transcription_chunks(
     message: Message, chunks: list[str], original_message: Message
 ):
-    # Send transcription chunks as separate messages.
-    await message.chat.send_message(f"Se enviarán {len(chunks)} mensajes.")
-
-    for i, chunk in enumerate(chunks, 1):
-        await message.chat.send_message(chunk)
-
-        if i < len(chunks):
-            await asyncio.sleep(PAUSE_BETWEEN_CHUNKS)
-
-    # Quote the original message only at the end
-    await original_message.reply_text("Transcripción completada.", quote=True)
+    # Send transcription chunks as replies to the original message.
+    for chunk in chunks:
+        await original_message.reply_text(chunk, quote=True)
+        await asyncio.sleep(PAUSE_BETWEEN_CHUNKS)
 
 
 async def send_transcription_file(
@@ -109,11 +102,6 @@ async def process_media(message, transcription, original_message, content_type="
             logging.info("Text file output enabled, preparing file")
             await send_transcription_file(message, transcription, original_message)
         else:
-            logging.info("Sending transcription as messages")
-            await message.chat.send_message(
-                "Transcripción completada. Enviando resultados..."
-            )
-
             # Split transcription into chunks
             chunks = [
                 transcription[i : i + CHUNK_SIZE]

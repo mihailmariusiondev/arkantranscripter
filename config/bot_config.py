@@ -10,6 +10,8 @@ class BotConfig:
         # Get API keys from environment variables
         self.bot_token = os.getenv("BOT_TOKEN")
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
+        # Load authorized users from environment variable
+        self.authorized_users = os.getenv("AUTHORIZED_USERS", "").split(",")
 
     @property
     def auto_transcription_enabled(self) -> bool:
@@ -35,3 +37,7 @@ class BotConfig:
 
 # Create a global instance of BotConfig
 bot_config = BotConfig()
+
+# Add authorized users from environment variable to the database
+for user_id in bot_config.authorized_users:
+    db.add_authorized_user(user_id)

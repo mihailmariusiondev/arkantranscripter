@@ -42,8 +42,6 @@ async def audio_handler(message: Message, context: CallbackContext) -> None:
         )
         return
 
-    await message.chat.send_message("Procesando el audio, por favor espera...")
-
     try:
         # Get file from Telegram
         file = await context.bot.get_file(file_id)
