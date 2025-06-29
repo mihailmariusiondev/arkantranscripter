@@ -1,10 +1,9 @@
-from telegram.ext import CommandHandler, MessageHandler, filters, ApplicationBuilder
+from telegram.ext import CommandHandler, MessageHandler, filters, ApplicationBuilder, CallbackQueryHandler
 from .handlers import (
     start_handler,
     transcribe_handler,
-    toggle_autotranscription_handler,
-    toggle_enhanced_transcription_handler,
-    toggle_output_text_file_handler,
+    configure_handler,
+    config_callback_handler,
     message_handler,
     error_handler,
     process_queue,
@@ -28,18 +27,10 @@ async def setup_bot():
     # Add command handlers
     application.add_handler(CommandHandler("start", start_handler))
     application.add_handler(CommandHandler("transcribe", transcribe_handler))
-    application.add_handler(
-        CommandHandler("toggle_autotranscription", toggle_autotranscription_handler)
-    )
-    application.add_handler(
-        CommandHandler(
-            "toggle_enhanced_transcription", toggle_enhanced_transcription_handler
-        )
-    )
-    # Agregar el manejador para togglear la salida en archivo de texto
-    application.add_handler(
-        CommandHandler("toggle_output_text_file", toggle_output_text_file_handler)
-    )
+    application.add_handler(CommandHandler("configure", configure_handler))
+
+    # Add callback query handler for configuration buttons
+    application.add_handler(CallbackQueryHandler(config_callback_handler))
 
     # Add message handler for text, video, audio, and voice messages
     application.add_handler(

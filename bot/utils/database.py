@@ -51,6 +51,7 @@ class Database:
                     ("enhanced_transcription_enabled", 0),
                     ("output_text_file_enabled", 0),
                     ("auto_summarize_enabled", 0),
+                    ("transcription_speed", 1),
                 ]
 
                 logging.info("Inserting default settings")
@@ -90,6 +91,28 @@ class Database:
             logging.error(f"Error getting setting {key}: {str(e)}")
             return False
 
+    def get_int_setting(self, key: str) -> int:
+        """
+        Get integer setting value from database.
+
+        Args:
+            key: Setting key to retrieve
+
+        Returns:
+            int: Setting value
+        """
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT value FROM settings WHERE key = ?", (key,))
+                result = cursor.fetchone()
+                value = int(result[0]) if result else 1
+                logging.info(f"Retrieved int setting {key}={value}")
+                return value
+        except Exception as e:
+            logging.error(f"Error getting int setting {key}: {str(e)}")
+            return 1
+
     def set_setting(self, key: str, value: bool):
         """
         Set boolean setting value in database.
@@ -111,6 +134,29 @@ class Database:
                 logging.info(f"Updated setting {key}={value}")
         except Exception as e:
             logging.error(f"Error setting {key}={value}: {str(e)}")
+            raise
+
+    def set_int_setting(self, key: str, value: int):
+        """
+        Set integer setting value in database.
+
+        Args:
+            key: Setting key to update
+            value: New integer value
+        """
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)
+                """,
+                    (key, value),
+                )
+                conn.commit()
+                logging.info(f"Updated int setting {key}={value}")
+        except Exception as e:
+            logging.error(f"Error setting int {key}={value}: {str(e)}")
             raise
 
     def toggle_setting(self, key: str) -> bool:

@@ -32,7 +32,10 @@ async def send_transcription_chunks(
 ):
     # Send transcription chunks as replies to the original message.
     for chunk in chunks:
-        await original_message.reply_text(chunk, quote=True)
+        await original_message.reply_text(
+            chunk,
+            reply_to_message_id=original_message.message_id
+        )
         await asyncio.sleep(PAUSE_BETWEEN_CHUNKS)
 
 
@@ -126,12 +129,16 @@ def get_file_size(file_path):
 
 
 async def compress_audio(input_path, output_path):
-    """Compress audio using ffmpeg with Opus codec."""
+    """Compress audio using ffmpeg with Opus codec and apply transcription speed."""
     try:
         input_size = get_file_size(input_path)
         logging.info(f"Compressing audio. Input file size: {input_size}")
 
-        # Construir el comando de ffmpeg
+        # Get transcription speed from config
+        speed = bot_config.transcription_speed
+        logging.info(f"Applying transcription speed: x{speed}")
+
+        # Construir el comando de ffmpeg con filtro de velocidad
         cmd = [
             "ffmpeg",
             "-y",
@@ -145,8 +152,19 @@ async def compress_audio(input_path, output_path):
             "12k",
             "-application",
             "voip",
-            output_path,
         ]
+
+        # Add speed filter if speed is not 1x
+        if speed != 1:
+            if speed == 3:
+                # Para x3, encadenar dos filtros atempo (2.0 * 1.5 = 3.0)
+                cmd.extend(["-filter:a", "atempo=2.0,atempo=1.5"])
+            elif speed == 2:
+                cmd.extend(["-filter:a", "atempo=2.0"])
+            else:  # speed == 1
+                pass  # No filter needed
+
+        cmd.append(output_path)
 
         # Ejecutar ffmpeg de manera asíncrona
         process = await asyncio.create_subprocess_exec(

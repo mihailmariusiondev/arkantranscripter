@@ -25,6 +25,10 @@ class BotConfig:
     def output_text_file_enabled(self) -> bool:
         return db.get_setting("output_text_file_enabled")
 
+    @property
+    def transcription_speed(self) -> int:
+        return db.get_int_setting("transcription_speed")
+
     def toggle_auto_transcription(self):
         return db.toggle_setting("auto_transcription_enabled")
 
@@ -33,6 +37,17 @@ class BotConfig:
 
     def toggle_output_text_file(self):
         return db.toggle_setting("output_text_file_enabled")
+
+    def set_transcription_speed(self, speed: int):
+        if speed in [1, 2, 3]:
+            db.set_int_setting("transcription_speed", speed)
+            return speed
+        else:
+            raise ValueError("Speed must be 1, 2, or 3")
+
+    def get_transcription_speed_text(self) -> str:
+        speed = self.transcription_speed
+        return f"x{speed}"
 
 
 # Create a global instance of BotConfig

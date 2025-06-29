@@ -29,10 +29,7 @@ async def start_handler(update: Update, context: CallbackContext) -> None:
         "- Archivos de audio\n"
         "- Mensajes de voz\n"
         "También puedes citar cualquier mensaje con contenido multimedia y usar /transcribe para transcribirlo.\n\n"
-        "Puedes usar los siguientes comandos para controlar las funciones:\n"
-        "/toggle_autotranscription - Activar/desactivar la transcripción automática\n"
-        "/toggle_enhanced_transcription - Activar/desactivar la transcripción mejorada\n"
-        "/toggle_output_text_file - Activar/desactivar salida en archivo de texto\n"
+        "Usa /configure para cambiar las configuraciones del bot.\n\n"
         f"{get_current_config_status()}\n"
     )
 
