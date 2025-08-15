@@ -3,18 +3,18 @@
 ![License](https://img.shields.io/github/license/mihailmariusiondev/arkantranscripter)
 ![Python Version](https://img.shields.io/badge/python-3.13-blue)
 ![Project Status](https://img.shields.io/badge/status-active-brightgreen)
-![Strategies](https://img.shields.io/badge/strategies-6-orange)
-![Tests](https://img.shields.io/badge/comprehensive_test-108_URLs-green)
+![Strategies](https://img.shields.io/badge/strategies-9-orange)
+![Tests](https://img.shieldBot: 🎬 Welcome to ArkanTranscripter! I can transcribe YouTube videos using 9 different strategies....io/badge/comprehensive_test-108_URLs-green)
 
 ## Description
 
-**ArkanTranscripter Bot** is an advanced Telegram bot designed to transcribe YouTube videos, directly sent videos, and audio messages using **6 different extraction strategies** for maximum reliability. The bot leverages multiple transcription services and OpenAI's advanced models to provide accurate and enhanced transcriptions, improving accessibility and convenience within your Telegram chats.
+**ArkanTranscripter Bot** is an advanced Telegram bot designed to transcribe YouTube videos, directly sent videos, and audio messages using **9 different extraction strategies** for maximum reliability. The bot leverages multiple transcription services and OpenAI's advanced models to provide accurate and enhanced transcriptions, improving accessibility and convenience within your Telegram chats.
 
 ## Key Features
 
 ### 🎯 **Multi-Strategy Transcription System**
 
-- **6 Independent Extraction Strategies** for maximum success rate
+- **9 Independent Extraction Strategies** for maximum success rate
 - **Automatic Fallback** - If one strategy fails, others are tried automatically
 - **Real-time Strategy Selection** - Best performing strategies are prioritized
 - **Comprehensive Testing Suite** - Over 100 URL formats tested regularly
@@ -45,16 +45,19 @@
 
 ## 🚀 Transcription Strategies
 
-ArkanTranscripter uses **6 different extraction strategies** to ensure maximum success:
+ArkanTranscripter uses **9 different extraction strategies** to ensure maximum success:
 
-| Strategy                     | Description                                  | Speed    | Reliability | Auth Required |
-| ---------------------------- | -------------------------------------------- | -------- | ----------- | ------------- |
-| **1. Tactiq**                | High-quality service with excellent accuracy | ⚡⚡⚡   | ⭐⭐⭐⭐⭐  | No            |
-| **2. SaveSubs**              | Fast subtitle extraction service             | ⚡⚡⚡⚡ | ⭐⭐⭐⭐    | No            |
-| **3. NoteGPT**               | AI-powered transcription service             | ⚡⚡⚡   | ⭐⭐⭐⭐    | No            |
-| **4. YouTube Transcript.io** | Dedicated YouTube transcript service         | ⚡⚡     | ⭐⭐⭐⭐⭐  | Yes           |
-| **5. YouTube API (Proxy)**   | Official API through proxy                   | ⚡⚡     | ⭐⭐⭐      | No            |
-| **6. YouTube API (Direct)**  | Direct official API access                   | ⚡⚡     | ⭐⭐⭐      | No            |
+| Strategy                     | Description                                    | Speed    | Reliability | Auth Required |
+| ---------------------------- | ---------------------------------------------- | -------- | ----------- | ------------- |
+| **1. SaveSubs**              | Fast subtitle extraction service               | ⚡⚡⚡⚡ | ⭐⭐⭐⭐    | No            |
+| **2. YouTube Transcript.io** | Dedicated YouTube transcript service           | ⚡⚡     | ⭐⭐⭐⭐⭐  | Yes           |
+| **3. NoteGPT**               | AI-powered transcription service               | ⚡⚡⚡   | ⭐⭐⭐⭐    | No            |
+| **4. Tactiq**                | High-quality service with excellent accuracy   | ⚡⚡⚡   | ⭐⭐⭐⭐⭐  | No            |
+| **5. Kome.ai**               | Clean transcript extraction with duration info | ⚡⚡⚡   | ⭐⭐⭐⭐    | No            |
+| **6. Anthiago**              | Subtitle extraction with HTML entity decoding  | ⚡⚡⚡   | ⭐⭐⭐⭐    | No            |
+| **7. YeScribe**              | Detailed transcript data with rich metadata    | ⚡⚡     | ⭐⭐⭐⭐    | No            |
+| **8. YouTube API (Proxy)**   | Official API through proxy                     | ⚡⚡     | ⭐⭐⭐      | No            |
+| **9. YouTube API (Direct)**  | Direct official API access                     | ⚡⚡     | ⭐⭐⭐      | No            |
 
 The bot automatically tries strategies in order of reliability and falls back to alternatives if needed.
 
@@ -106,10 +109,10 @@ ArkanTranscripter includes a sophisticated testing framework:
 ### Running Tests
 
 ```bash
-# Full comprehensive test (all 108 URLs × 6 strategies = 648+ individual tests)
+# Full comprehensive test (all 108 URLs × 7 strategies = 756+ individual tests)
 python3 comprehensive_test.py
 
-# Quick test (5 URLs × 6 strategies = 30 individual tests)
+# Quick test (5 URLs × 7 strategies = 35 individual tests)
 python3 comprehensive_test.py quick
 
 # View detailed test logs
@@ -338,7 +341,7 @@ The bot uses intelligent strategy fallback:
 
 ```
 User: /start
-Bot: 🎬 Welcome to ArkanTranscripter! I can transcribe YouTube videos using 6 different strategies...
+Bot: 🎬 Welcome to ArkanTranscripter! I can transcribe YouTube videos using 7 different strategies...
 
 User: /configure
 Bot: [Interactive configuration menu with buttons]
@@ -395,12 +398,15 @@ The core strength of ArkanTranscripter lies in its **6-strategy transcription sy
 ```python
 # Strategies are tried in order of reliability:
 strategies = [
-    'savesubs',           # Fast subtitle extraction
-    'youtube_transcript_io', # Dedicated service
-    'notegpt',            # AI-powered transcription
-    'tactiq',             # High-quality service (most reliable)
-    'youtube_api_proxy',  # Official API via proxy
-    'youtube_api_direct'  # Direct official API
+    'savesubs',             # Fast subtitle extraction
+    'youtube_transcript_io', # Dedicated YouTube transcript service (enhanced with auth)
+    'notegpt',              # AI-powered transcription service
+    'tactiq',               # High-quality service with excellent accuracy
+    'kome_ai',              # Clean transcript extraction with duration info
+    'anthiago',             # Subtitle extraction with HTML entity decoding
+    'yescribe',             # Detailed transcript data with rich metadata
+    'youtube_api_proxy',    # Official API through proxy
+    'youtube_api_direct'    # Direct official API access
 ]
 ```
 
@@ -781,7 +787,7 @@ The bot's advanced features including automatic fallback, intelligent error hand
 
 ### Why Choose ArkanTranscripter?
 
-- **🎯 Reliability**: 6 strategies ensure maximum success rate
+- **🎯 Reliability**: 7 strategies ensure maximum success rate
 - **⚡ Speed**: Optimized for fast transcription delivery
 - **🌐 Coverage**: Supports all YouTube URL formats
 - **🔧 Flexibility**: Extensive configuration options
