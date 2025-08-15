@@ -12,3 +12,4 @@ dependencies:
       - openai==1.50.2
       - python-dotenv==1.0.1
       - asyncio==3.4.3
+      - aiohttp==3.10.11
