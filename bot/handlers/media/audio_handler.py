@@ -38,9 +38,20 @@ async def audio_handler(message: Message, context: CallbackContext) -> None:
     if file_size > MAX_FILE_SIZE:
         logging.warning(f"File size {file_size} exceeds limit of {MAX_FILE_SIZE} bytes")
         await message.chat.send_message(
-            "El archivo es demasiado grande (más de 20 MB). Por favor, envía un archivo más pequeño."
+            f"🎵 **Audio demasiado grande**\n"
+            f"📊 Tamaño: {file_size/1024/1024:.1f} MB\n"
+            f"⚠️ Límite máximo: {MAX_FILE_SIZE/1024/1024:.0f} MB\n"
+            f"💡 Por favor, envía un archivo más pequeño."
         )
         return
+
+    # Send initial status message
+    content_type = "audio" if is_audio else "mensaje de voz"
+    status_message = await message.chat.send_message(
+        f"🎵 **Procesando {content_type}**\n"
+        f"📊 Tamaño: {file_size/1024/1024:.1f} MB\n"
+        f"🔄 Descargando archivo..."
+    )
 
     try:
         # Get file from Telegram
@@ -55,12 +66,24 @@ async def audio_handler(message: Message, context: CallbackContext) -> None:
 
         try:
             # Download audio file
+            await status_message.edit_text(
+                f"🎵 **Procesando {content_type}**\n"
+                f"📊 Tamaño: {file_size/1024/1024:.1f} MB\n"
+                f"⬇️ Descargando archivo de Telegram..."
+            )
+
             await file.download_to_drive(custom_path=temp_file_path)
             logging.info(
                 f"Audio downloaded successfully, size: {get_file_size(temp_file_path)}"
             )
 
             # Compress audio
+            await status_message.edit_text(
+                f"🎵 **Procesando {content_type}**\n"
+                f"📊 Archivo descargado: {get_file_size(temp_file_path)}\n"
+                f"🗜️ Comprimiendo audio para transcripción..."
+            )
+
             compressed_file_path = tempfile.NamedTemporaryFile(
                 delete=False, suffix=".ogg"
             ).name
@@ -70,18 +93,42 @@ async def audio_handler(message: Message, context: CallbackContext) -> None:
             )
 
             # Transcribe audio
+            await status_message.edit_text(
+                f"🎵 **Transcribiendo {content_type}**\n"
+                f"📊 Audio comprimido: {get_file_size(compressed_file_path)}\n"
+                f"🤖 Procesando con OpenAI Whisper...\n"
+                f"⏳ Esto puede tomar unos momentos..."
+            )
+
             logging.info("Starting transcription process")
             transcription = await transcribe_audio(compressed_file_path)
             logging.info(f"Transcription completed, length: {len(transcription)} chars")
 
+            # Update with success
+            await status_message.edit_text(
+                f"🎵 **¡Transcripción completada!**\n"
+                f"📊 {len(transcription):,} caracteres transcritos\n"
+                f"⚡ Procesando resultado final..."
+            )
+
             # Process transcription
-            await process_media(message, transcription, message, content_type="audio")
+            await process_media(message, transcription, message, content_type="audio", status_message=status_message)
 
         except Exception as e:
             logging.error(f"Error processing audio file: {str(e)}", exc_info=True)
-            await message.reply_text(
-                "Ocurrió un error al procesar la transcripción del audio."
-            )
+            try:
+                # Delete status message and send error
+                await status_message.delete()
+                await message.reply_text(
+                    f"🎵 **Error procesando {content_type}**\n"
+                    f"❌ Error durante el procesamiento\n"
+                    f"🔧 Por favor, intenta nuevamente más tarde."
+                )
+            except Exception:
+                # Fallback if status message can't be deleted
+                await message.reply_text(
+                    "❌ Ocurrió un error al procesar la transcripción del audio."
+                )
             raise
 
         finally:

@@ -74,7 +74,7 @@ async def send_transcription_file(
             logging.error(f"Error al eliminar el archivo temporal: {e}")
 
 
-async def process_media(message, transcription, original_message, content_type="video"):
+async def process_media(message, transcription, original_message, content_type="video", status_message=None):
     """
     Process media content by handling transcription, chunking, and optional summarization.
 
@@ -83,6 +83,7 @@ async def process_media(message, transcription, original_message, content_type="
         transcription: The raw transcription text
         original_message: The original message being processed
         content_type: Type of media being processed (video/audio/youtube)
+        status_message: Optional status message to delete after processing
     """
     chat_id = message.chat.id
     user_id = message.from_user.id
@@ -95,16 +96,102 @@ async def process_media(message, transcription, original_message, content_type="
         # Enhanced transcription processing if enabled
         if bot_config.enhanced_transcription_enabled:
             logging.info("Enhanced transcription enabled, post-processing text")
-            transcription = await openai_service.post_process_transcription(
-                transcription
+
+            # Send status message about enhancement processing
+            enhancement_msg = await message.chat.send_message(
+                "✨ **Mejorando transcripción con IA**\n"
+                "🤖 Procesando con OpenAI GPT-4o mini...\n"
+                "⏳ Esto puede tomar unos momentos..."
             )
-            logging.info("Enhanced transcription completed")
+
+            try:
+                transcription = await openai_service.post_process_transcription(
+                    transcription
+                )
+                await enhancement_msg.edit_text(
+                    "✨ **¡Transcripción mejorada exitosamente!**\n"
+                    "🤖 Procesamiento con IA completado\n"
+                    f"📊 {len(transcription):,} caracteres finales"
+                )
+                logging.info("Enhanced transcription completed")
+
+                # Delete enhancement message after short delay
+                await asyncio.sleep(1)
+                try:
+                    await enhancement_msg.delete()
+                    logging.info("Enhancement message deleted")
+                except Exception:
+                    pass
+
+            except Exception as e:
+                logging.error(f"Error in transcription enhancement: {e}")
+                await enhancement_msg.edit_text(
+                    "⚠️ **Error en mejora de transcripción**\n"
+                    "🤖 Continuando con transcripción original\n"
+                    f"📄 {len(transcription):,} caracteres"
+                )
+                await asyncio.sleep(1)
+                # Delete enhancement error message
+                try:
+                    await enhancement_msg.delete()
+                    logging.info("Enhancement error message deleted")
+                except Exception:
+                    pass
 
         # Handle text file output if enabled
         if bot_config.output_text_file_enabled:
             logging.info("Text file output enabled, preparing file")
-            await send_transcription_file(message, transcription, original_message)
+
+            # Send status message about file preparation
+            file_msg = await message.chat.send_message(
+                "📄 **Preparando archivo de texto**\n"
+                "💾 Generando archivo descargable...\n"
+                f"📊 {len(transcription):,} caracteres"
+            )
+
+            try:
+                await send_transcription_file(message, transcription, original_message)
+                await file_msg.edit_text(
+                    "📄 **¡Archivo enviado exitosamente!**\n"
+                    "✅ Descarga disponible arriba\n"
+                    f"📊 {len(transcription):,} caracteres"
+                )
+                await asyncio.sleep(1)
+                # Delete file message after success
+                try:
+                    await file_msg.delete()
+                    logging.info("File success message deleted")
+                except Exception:
+                    pass
+
+            except Exception as e:
+                logging.error(f"Error sending transcription file: {e}")
+                await file_msg.edit_text(
+                    "❌ **Error enviando archivo**\n"
+                    "📝 Enviando como texto en mensajes...\n"
+                )
+                await asyncio.sleep(1)
+                # Delete file error message
+                try:
+                    await file_msg.delete()
+                    logging.info("File error message deleted")
+                except Exception:
+                    pass
+                # Fallback to chunks
+                chunks = [
+                    transcription[i : i + CHUNK_SIZE]
+                    for i in range(0, len(transcription), CHUNK_SIZE)
+                ]
+                logging.info(f"Split transcription into {len(chunks)} chunks")
+                await send_transcription_chunks(message, chunks, original_message)
         else:
+            # Send status message about chunk preparation
+            chunk_msg = await message.chat.send_message(
+                "📝 **Enviando transcripción**\n"
+                f"📊 {len(transcription):,} caracteres\n"
+                "💬 Preparando mensajes..."
+            )
+
             # Split transcription into chunks
             chunks = [
                 transcription[i : i + CHUNK_SIZE]
@@ -112,10 +199,47 @@ async def process_media(message, transcription, original_message, content_type="
             ]
             logging.info(f"Split transcription into {len(chunks)} chunks")
 
+            await chunk_msg.edit_text(
+                "📝 **Enviando transcripción**\n"
+                f"📊 {len(transcription):,} caracteres\n"
+                f"💬 {len(chunks)} mensaje(s) a enviar"
+            )
+
+            await asyncio.sleep(0.5)
+            # Delete chunk message before sending
+            try:
+                await chunk_msg.delete()
+                logging.info("Chunk message deleted before sending")
+            except Exception:
+                pass
+
             await send_transcription_chunks(message, chunks, original_message)
+
+        # Delete status message after successful processing
+        if status_message:
+            try:
+                await status_message.delete()
+                logging.info("Status message deleted successfully")
+            except Exception as e:
+                logging.warning(f"Could not delete status message: {e}")
 
     except Exception as e:
         logging.error(f"Error processing media: {str(e)}", exc_info=True)
+
+        # Delete status message on error
+        if status_message:
+            try:
+                await status_message.delete()
+                logging.info("Status message deleted after error")
+            except Exception as delete_error:
+                logging.warning(f"Could not delete status message after error: {delete_error}")
+
+        # Send error message to user
+        await message.chat.send_message(
+            "❌ **Error en procesamiento final**\n"
+            "🔧 Ocurrió un problema enviando la transcripción\n"
+            "💡 Por favor, intenta nuevamente"
+        )
         raise
 
 

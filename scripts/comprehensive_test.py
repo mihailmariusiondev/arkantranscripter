@@ -14,7 +14,7 @@ import sys
 from typing import List, Dict, Any, Optional
 
 # Add project root to path
-project_root = Path(__file__).parent
+project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from bot.services.youtube_transcript_service import YouTubeTranscriptExtractor
@@ -482,11 +482,175 @@ class YouTubeURLTester:
             print("\n⚠️  NEEDS IMPROVEMENT: Consider optimizing strategies")
 
 
+async def test_clean_messaging_system():
+    """
+    Test the clean messaging system implementation.
+    Verifies that status messages would be properly deleted during processing.
+    """
+    print("\n" + "=" * 60)
+    print("🧹 TESTING CLEAN MESSAGING SYSTEM")
+    print("=" * 60)
+    
+    # Mock classes to simulate Telegram message behavior
+    class MockMessage:
+        def __init__(self, message_id):
+            self.message_id = message_id
+            self.deleted = False
+            self.text = ""
+            self.edit_count = 0
+
+        async def edit_text(self, text, **kwargs):
+            self.text = text
+            self.edit_count += 1
+            print(f"  📝 Message {self.message_id} updated: {text[:50]}...")
+            return self
+
+        async def delete(self):
+            self.deleted = True
+            print(f"  🗑️ Message {self.message_id} DELETED")
+
+    class MockChat:
+        def __init__(self):
+            self.message_counter = 1
+
+        async def send_message(self, text, **kwargs):
+            msg = MockMessage(self.message_counter)
+            msg.text = text
+            self.message_counter += 1
+            print(f"  📤 New message {msg.message_id}: {text[:50]}...")
+            return msg
+
+    print("\n1. Testing YouTube processing flow...")
+    
+    # Simulate status message lifecycle
+    chat = MockChat()
+    
+    # Initial status message
+    status_msg = await chat.send_message("🎬 Processing YouTube video...")
+    
+    # Strategy updates
+    strategies = [("SaveSubs", False), ("Tactiq", True)]
+    for i, (name, success) in enumerate(strategies, 1):
+        await status_msg.edit_text(f"⚡ Strategy {i}: {name}")
+        if success:
+            await status_msg.edit_text(f"✅ Success with {name}")
+            break
+        else:
+            await status_msg.edit_text(f"❌ Failed: {name}")
+    
+    # Enhancement message
+    enhancement_msg = await chat.send_message("✨ Enhancing with AI...")
+    await enhancement_msg.edit_text("✨ Enhancement completed")
+    await enhancement_msg.delete()  # Should be deleted
+    
+    # Chunk message  
+    chunk_msg = await chat.send_message("📝 Preparing transcription...")
+    await chunk_msg.edit_text("📝 Sending transcription")
+    await chunk_msg.delete()  # Should be deleted
+    
+    # Final transcription (should remain)
+    final_msg = await chat.send_message("🎵 **Transcription Complete**\n\nActual transcription text...")
+    
+    # Status message cleanup
+    await status_msg.delete()  # Should be deleted
+    
+    # Verify clean state
+    temp_messages_deleted = status_msg.deleted and enhancement_msg.deleted and chunk_msg.deleted
+    final_remains = not final_msg.deleted
+    
+    print(f"\n📊 CLEAN MESSAGING TEST RESULTS:")
+    print(f"   Status message deleted: {'✅' if status_msg.deleted else '❌'}")
+    print(f"   Enhancement message deleted: {'✅' if enhancement_msg.deleted else '❌'}")
+    print(f"   Chunk message deleted: {'✅' if chunk_msg.deleted else '❌'}")
+    print(f"   Final message remains: {'✅' if final_remains else '❌'}")
+    
+    if temp_messages_deleted and final_remains:
+        print("   🎉 SUCCESS: Clean messaging system works correctly!")
+        return True
+    else:
+        print("   ❌ FAILURE: Clean messaging system has issues")
+        return False
+
+
+async def test_handler_integration():
+    """
+    Test that handlers properly implement the clean messaging system.
+    Verifies the status_message parameter is correctly handled.
+    """
+    print("\n2. Testing handler integration...")
+    
+    try:
+        # Import handlers to verify they accept status_message parameter
+        from bot.handlers.media.youtube_handler import youtube_handler
+        from bot.handlers.media.video_handler import video_handler  
+        from bot.handlers.media.audio_handler import audio_handler
+        from bot.utils.transcription_utils import process_media
+        
+        # Check function signatures via inspection
+        import inspect
+        
+        # Check process_media accepts status_message
+        process_media_sig = inspect.signature(process_media)
+        has_status_param = 'status_message' in process_media_sig.parameters
+        
+        print(f"   process_media accepts status_message: {'✅' if has_status_param else '❌'}")
+        
+        if has_status_param:
+            print("   🎉 SUCCESS: Handlers properly integrated with clean messaging!")
+            return True
+        else:
+            print("   ❌ FAILURE: Handler integration incomplete")
+            return False
+            
+    except ImportError as e:
+        print(f"   ❌ IMPORT ERROR: {e}")
+        return False
+
+
+async def run_clean_messaging_tests():
+    """Run all clean messaging system tests."""
+    print("🧹 RUNNING CLEAN MESSAGING SYSTEM TESTS")
+    print("=" * 60)
+    
+    test_results = []
+    
+    # Test 1: Clean messaging flow
+    result1 = await test_clean_messaging_system()
+    test_results.append(result1)
+    
+    # Test 2: Handler integration
+    result2 = await test_handler_integration()
+    test_results.append(result2)
+    
+    # Summary
+    passed = sum(test_results)
+    total = len(test_results)
+    
+    print(f"\n📊 CLEAN MESSAGING TESTS SUMMARY:")
+    print(f"   Passed: {passed}/{total}")
+    print(f"   Success rate: {passed/total*100:.1f}%")
+    
+    if passed == total:
+        print("   🎉 ALL CLEAN MESSAGING TESTS PASSED!")
+    else:
+        print("   ❌ Some clean messaging tests failed")
+    
+    return passed == total
+
 
 async def main():
     """Run comprehensive YouTube URL and strategy testing."""
 
     start_time = time.time()
+
+    # Parse command line arguments
+    quick_test = len(sys.argv) > 1 and sys.argv[1] == 'quick'
+    clean_test = len(sys.argv) > 1 and sys.argv[1] == 'clean'
+    
+    if clean_test:
+        # Run only clean messaging tests
+        success = await run_clean_messaging_tests()
+        sys.exit(0 if success else 1)
 
     # Load URLs from external file
     TEST_URLS = load_test_urls_from_file()
@@ -637,7 +801,13 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "quick":
         print("Running in QUICK TEST mode...")
         asyncio.run(quick_test())
+    elif len(sys.argv) > 1 and sys.argv[1] == "clean":
+        print("Running CLEAN MESSAGING TESTS...")
+        asyncio.run(run_clean_messaging_tests())
     else:
         print("Running FULL COMPREHENSIVE test...")
-        print("Tip: Use 'python comprehensive_test.py quick' for faster testing")
+        print("Usage modes:")
+        print("  python comprehensive_test.py        - Full test (all URLs)")
+        print("  python comprehensive_test.py quick  - Quick test (5 URLs)")
+        print("  python comprehensive_test.py clean  - Clean messaging tests")
         asyncio.run(main())

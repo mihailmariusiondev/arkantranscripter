@@ -749,28 +749,72 @@ class YouTubeTranscriptExtractor:
         Returns:
             Extracted transcript text or None if all strategies fail
         """
+        return await self.extract_transcript_with_status(video_id, None)
+
+    async def extract_transcript_with_status(self, video_id: str, status_callback=None) -> Optional[str]:
+        """
+        Extract transcript using all available strategies with fallback and optional status updates.
+
+        Args:
+            video_id: YouTube video ID
+            status_callback: Optional callback function for status updates
+                           Should accept (strategy_num, strategy_name, total_strategies, status, details)
+
+        Returns:
+            Extracted transcript text or None if all strategies fail
+        """
         logging.info(f"Starting transcript extraction for video {video_id}")
+
+        # Strategy names for better user feedback
+        strategy_names = {
+            '_extract_with_savesubs': 'SaveSubs',
+            '_extract_with_youtube_transcript_io': 'YouTube Transcript.io',
+            '_extract_with_notegpt': 'NoteGPT',
+            '_extract_with_tactiq': 'Tactiq',
+            '_extract_with_kome_ai': 'Kome.ai',
+            '_extract_with_anthiago': 'Anthiago',
+            '_extract_with_yescribe': 'YeScribe',
+            '_extract_with_youtube_transcript_api_proxy': 'YouTube API (Proxy)',
+            '_extract_with_youtube_transcript_api_direct': 'YouTube API (Direct)',
+        }
 
         for i, strategy in enumerate(self.strategies, 1):
             try:
-                logging.info(f"Trying strategy {i}/{len(self.strategies)}: {strategy.__name__}")
+                strategy_name = strategy_names.get(strategy.__name__, strategy.__name__)
+
+                if status_callback:
+                    await status_callback(i, strategy_name, len(self.strategies), "trying")
+
+                logging.info(f"Trying strategy {i}/{len(self.strategies)}: {strategy_name}")
 
                 # Add delay between attempts to avoid rate limiting
                 if i > 1:
-                    delay = random.uniform(0.5, 1.5)  # Reduced delay for faster testing
+                    delay = random.uniform(0.5, 1.5)
                     logging.info(f"Waiting {delay:.1f}s before next strategy...")
                     await asyncio.sleep(delay)
 
                 result = await strategy(video_id)
 
                 if result and len(result.strip()) > 0:
-                    logging.info(f"Success with strategy {i}: {strategy.__name__}")
+                    if status_callback:
+                        details = f"{len(result):,} caracteres extraídos"
+                        await status_callback(i, strategy_name, len(self.strategies), "success", details)
+
+                    logging.info(f"Success with strategy {i}: {strategy_name}")
                     return result
 
-                logging.warning(f"Strategy {i} ({strategy.__name__}) returned no content")
+                logging.warning(f"Strategy {i} ({strategy_name}) returned no content")
+
+                if status_callback:
+                    await status_callback(i, strategy_name, len(self.strategies), "failed", "Sin contenido")
 
             except Exception as e:
                 logging.error(f"Strategy {i} ({strategy.__name__}) failed: {str(e)}")
+
+                if status_callback:
+                    strategy_name = strategy_names.get(strategy.__name__, strategy.__name__)
+                    await status_callback(i, strategy_name, len(self.strategies), "failed", f"Error: {str(e)[:50]}")
+
                 continue
 
         logging.error(f"All extraction strategies failed for video {video_id}")

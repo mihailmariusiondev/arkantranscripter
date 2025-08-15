@@ -4,7 +4,47 @@
 ![Python Version](https://img.shields.io/badge/python-3.13-blue)
 ![Project Status](https://img.shields.io/badge/status-active-brightgreen)
 ![Strategies](https://img.shields.io/badge/strategies-9-orange)
-![Tests](https://img.shieldBot: 🎬 Welcome to ArkanTranscripter! I can transcribe YouTube videos using 9 different strategies....io/badge/comprehensive_test-108_URLs-green)
+![Tests](https://img.shi### 📋 Example Interaction Flow
+
+````
+User: /start
+Bot: 🎬 Welcome to ArkanTranscripter! I can transcribe YouTube videos using 9 different strategies...
+
+User: /configure
+Bot: [Interactive configuration menu with buttons]
+
+User: https://youtu.be/dQw4w9WgXcQ
+Bot: 🎬 **Procesando video de YouTube**
+     📝 ID: dQw4w9WgXcQ
+     🔄 Iniciando extracción con múltiples estrategias...
+
+[Status updates in real-time - same message being edited:]
+Bot: 🎬 **Procesando video de YouTube**
+     📝 ID: dQw4w9WgXcQ
+     ⚡ Estrategia 1/9: **SaveSubs**
+     🔄 Extrayendo transcripción...
+
+Bot: 🎬 **Procesando video de YouTube**
+     📝 ID: dQw4w9WgXcQ
+     ❌ Estrategia 1 falló: SaveSubs
+     🔄 Probando siguiente estrategia...
+
+Bot: 🎬 **Procesando video de YouTube**
+     📝 ID: dQw4w9WgXcQ
+     ⚡ Estrategia 4/9: **Tactiq**
+     🔄 Extrayendo transcripción...
+
+Bot: 🎬 **Video de YouTube procesado**
+     📝 ID: dQw4w9WgXcQ
+     ✅ **Éxito con estrategia 4**: Tactiq
+     📊 1,848 caracteres extraídos
+     🔄 Procesando transcripción...
+
+[All temporary status messages are deleted, only final result remains:]
+Bot: 🎬 **Transcripción Completa**
+
+     [Full transcription text or file attachment]
+```me to ArkanTranscripter! I can transcribe YouTube videos using 9 different strategies....io/badge/comprehensive_test-108_URLs-green)
 
 ## Description
 
@@ -30,6 +70,11 @@
 ### ⚡ **Advanced Features**
 
 - **Enhanced Transcriptions**: Uses OpenAI GPT-4o mini for quality improvements
+- **Real-time Status Updates**: Live feedback during processing - see exactly which strategy is being tried
+- **Strategy Progress Tracking**: Visual progress indicators showing which transcription method is active
+- **Clean Messaging System**: Temporary status messages are automatically deleted, keeping only the final result
+- **Detailed Error Reporting**: Clear information when strategies fail and why
+- **Smart Processing Feedback**: Real-time updates for video/audio processing steps with automatic cleanup
 - **Automatic Transcription**: Toggle automatic processing of links and videos
 - **Text File Output**: Option to receive transcriptions as downloadable files
 - **Long Video Handling**: Smart splitting of long transcriptions
@@ -109,15 +154,18 @@ ArkanTranscripter includes a sophisticated testing framework:
 ### Running Tests
 
 ```bash
-# Full comprehensive test (all 108 URLs × 7 strategies = 756+ individual tests)
-python3 comprehensive_test.py
+# Full comprehensive test (all 108+ URLs × 9 strategies = 972+ individual tests)
+python scripts/comprehensive_test.py
 
-# Quick test (5 URLs × 7 strategies = 35 individual tests)
-python3 comprehensive_test.py quick
+# Quick test (5 URLs × 9 strategies = 45 individual tests)
+python scripts/comprehensive_test.py quick
 
-# View detailed test logs
-tail -f logs/bot.log
-```
+# Clean messaging system tests (verifies temporary message deletion)
+python scripts/comprehensive_test.py clean
+
+# Monitor test progress
+tail -f scripts/comprehensive_test_debug.log
+````
 
 ## Repository Structure
 
@@ -359,14 +407,17 @@ Bot: 🔄 Processing video: "Rick Astley - Never Gonna Give You Up"...
 #### Run Comprehensive Tests
 
 ```bash
-# Quick test (30 individual tests)
-python comprehensive_test.py quick
+# Quick test (45 individual tests)
+python scripts/comprehensive_test.py quick
 
-# Full comprehensive test (648+ individual tests)
-python comprehensive_test.py
+# Full comprehensive test (972+ individual tests)
+python scripts/comprehensive_test.py
+
+# Clean messaging system tests (verifies UI cleanup)
+python scripts/comprehensive_test.py clean
 
 # Monitor test progress
-tail -f comprehensive_test_debug.log
+tail -f scripts/comprehensive_test_debug.log
 ```
 
 #### Add Custom Test URLs
